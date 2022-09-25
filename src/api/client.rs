@@ -14,7 +14,7 @@ pub trait RestClient {
     fn rest_endpoint(&self, endpoint: &str) -> Result<Url, ApiError<Self::Error>>;
 }
 
-/// A trait representing a client which can communicate with a GitLab instance.
+/// A trait representing a client which can communicate with a Teamdeck instance.
 pub trait Client: RestClient {
     /// Send a REST query.
     fn rest(
@@ -24,7 +24,7 @@ pub trait Client: RestClient {
     ) -> Result<Response<Bytes>, ApiError<Self::Error>>;
 }
 
-/// A trait representing an asynchronous client which can communicate with a GitLab instance.
+/// A trait representing an asynchronous client which can communicate with a Teamdeck instance.
 #[async_trait]
 pub trait AsyncClient: RestClient {
     /// Send a REST query asynchronously.

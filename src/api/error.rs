@@ -70,6 +70,10 @@ impl<E> ApiError<E>
 where
     E: Error + Send + Sync + 'static,
 {
+    pub fn client(source: E) -> Self {
+        ApiError::Client { source }
+    }
+
     pub(crate) fn data_type<T>(source: serde_json::Error) -> Self {
         ApiError::DataType {
             source,

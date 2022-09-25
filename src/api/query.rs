@@ -11,7 +11,7 @@ where
     fn query(&self, client: &C) -> Result<T, ApiError<C::Error>>;
 }
 
-/// A trait which represents an asynchronous query which may be made to a GitLab client.
+/// A trait which represents an asynchronous query which may be made to a Teamdeck client.
 #[async_trait]
 pub trait AsyncQuery<T, C>
 where

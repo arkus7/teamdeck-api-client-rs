@@ -1,24 +1,23 @@
-
 use derive_builder::Builder;
 use http::Method;
 use params::QueryParams;
 use std::borrow::Cow;
 
-use crate::api::{Endpoint, params};
+use crate::api::{params, Endpoint};
 
 use super::time_entries::TimeEntriesExpand;
 
 #[derive(Debug, Builder)]
 pub struct TimeEntry {
-  id: usize,
-  #[builder(default)]
-  expand: Option<TimeEntriesExpand>,
+    id: usize,
+    #[builder(default)]
+    expand: Option<TimeEntriesExpand>,
 }
 
 impl TimeEntry {
-  pub fn builder() -> TimeEntryBuilder {
-    TimeEntryBuilder::default()
-  }
+    pub fn builder() -> TimeEntryBuilder {
+        TimeEntryBuilder::default()
+    }
 }
 
 impl Endpoint for TimeEntry {

@@ -4,20 +4,20 @@ use http::Method;
 use std::borrow::Cow;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum BookingTagsSortBy {
+pub enum TimeEntryTagsSortBy {
     Id,
     Name,
     Icon,
     Color,
 }
 
-impl Default for BookingTagsSortBy {
+impl Default for TimeEntryTagsSortBy {
     fn default() -> Self {
         Self::Name
     }
 }
 
-impl BookingTagsSortBy {
+impl TimeEntryTagsSortBy {
     fn as_str(self) -> &'static str {
         match self {
             Self::Id => "id",
@@ -28,7 +28,7 @@ impl BookingTagsSortBy {
     }
 }
 
-impl ParamValue<'static> for BookingTagsSortBy {
+impl ParamValue<'static> for TimeEntryTagsSortBy {
     fn as_value(&self) -> Cow<'static, str> {
         self.as_str().into()
     }
@@ -36,9 +36,9 @@ impl ParamValue<'static> for BookingTagsSortBy {
 
 #[derive(Debug, Builder)]
 #[builder(setter(strip_option))]
-pub struct BookingTags<'a> {
+pub struct TimeEntryTags<'a> {
     #[builder(default)]
-    sort: Option<SortBy<BookingTagsSortBy>>,
+    sort: Option<SortBy<TimeEntryTagsSortBy>>,
     #[builder(default)]
     page: Option<u64>,
     #[builder(default)]
@@ -47,20 +47,20 @@ pub struct BookingTags<'a> {
     name: Option<Cow<'a, str>>,
 }
 
-impl<'a> BookingTags<'a> {
+impl<'a> TimeEntryTags<'a> {
     /// Create a builder for the endpoint.
-    pub fn builder() -> BookingTagsBuilder<'a> {
-        BookingTagsBuilder::default()
+    pub fn builder() -> TimeEntryTagsBuilder<'a> {
+        TimeEntryTagsBuilder::default()
     }
 }
 
-impl<'a> Endpoint for BookingTags<'a> {
+impl<'a> Endpoint for TimeEntryTags<'a> {
     fn method(&self) -> Method {
         Method::GET
     }
 
     fn url(&self) -> Cow<'static, str> {
-        "booking-tags".into()
+        "time-entry-tags".into()
     }
 
     fn parameters(&self) -> QueryParams {
@@ -74,6 +74,6 @@ impl<'a> Endpoint for BookingTags<'a> {
     }
 }
 
-impl Pageable for BookingTags<'_> {}
+impl Pageable for TimeEntryTags<'_> {}
 
 // TODO: Add tests

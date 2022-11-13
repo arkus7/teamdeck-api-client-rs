@@ -3,7 +3,6 @@ use derive_builder::Builder;
 use http::Method;
 use std::borrow::Cow;
 
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ProjectsSortBy {
     Name,

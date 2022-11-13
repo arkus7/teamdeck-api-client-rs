@@ -1,5 +1,5 @@
-use std::borrow::Cow;
 use derive_builder::Builder;
+use std::borrow::Cow;
 
 use crate::api::{Endpoint, QueryParams};
 

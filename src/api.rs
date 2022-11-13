@@ -8,8 +8,9 @@ mod query;
 
 pub mod booking;
 pub mod booking_tags;
-pub mod resources;
+pub mod holidays;
 pub mod projects;
+pub mod resources;
 pub mod sort;
 
 pub use endpoint::Endpoint;

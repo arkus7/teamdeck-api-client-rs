@@ -85,13 +85,14 @@ mod tests {
 
     #[test]
     fn adds_hyphen_prefix_to_inner_values_when_descending() {
-      let sort_by_values = vec![
+        let sort_by_values = vec![
             SortBy::Descending(DummySortBy::Name),
             SortBy::Descending(DummySortBy::Email),
             SortBy::Descending(DummySortBy::Active),
         ];
 
-        let expected_values: Vec<Cow<str>> = vec!["-name".into(), "-email".into(), "-active".into()];
+        let expected_values: Vec<Cow<str>> =
+            vec!["-name".into(), "-email".into(), "-active".into()];
         let param_values = sort_by_values
             .iter()
             .map(SortBy::as_value)

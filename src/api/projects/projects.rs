@@ -1,4 +1,4 @@
-use crate::api::{paged::Pageable, params::ParamValue, Endpoint, QueryParams, sort_by::SortBy};
+use crate::api::{paged::Pageable, params::ParamValue, sort_by::SortBy, Endpoint, QueryParams};
 use derive_builder::Builder;
 use http::Method;
 use std::borrow::Cow;

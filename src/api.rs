@@ -7,13 +7,11 @@ mod params;
 mod query;
 
 pub mod booking;
-pub mod booking_tags;
 pub mod holidays;
 pub mod projects;
 pub mod resources;
 pub mod sort_by;
 pub mod time_entries;
-pub mod time_entry_tags;
 
 pub use endpoint::Endpoint;
 pub use error::ApiError;

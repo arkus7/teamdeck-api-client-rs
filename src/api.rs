@@ -6,8 +6,9 @@ mod paged;
 mod params;
 mod query;
 
-pub mod resources;
 pub mod booking;
+pub mod booking_tags;
+pub mod resources;
 pub mod sort;
 
 pub use endpoint::Endpoint;

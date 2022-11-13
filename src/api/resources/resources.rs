@@ -93,7 +93,7 @@ impl<'a> Endpoint for Resources<'a> {
             .push_opt("sort", self.sort)
             .push_opt("page", self.page)
             .push_opt("name", self.name.as_ref())
-            .push_opt("active", self.active.map(|v| if v { 1 } else { 0 }))
+            .push_opt("active", self.active)
             .push_opt("email", self.email.as_ref())
             .push_opt("expand", self.expand);
 

@@ -10,9 +10,9 @@ pub trait ParamValue<'a> {
 impl ParamValue<'static> for bool {
     fn as_value(&self) -> Cow<'static, str> {
         if *self {
-            "true".into()
+            "1".into()
         } else {
-            "false".into()
+            "0".into()
         }
     }
 }

@@ -7,6 +7,8 @@ mod params;
 mod query;
 
 pub mod resources;
+pub mod booking;
+pub mod sort;
 
 pub use endpoint::Endpoint;
 pub use error::ApiError;

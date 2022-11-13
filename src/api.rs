@@ -11,7 +11,7 @@ pub mod booking_tags;
 pub mod holidays;
 pub mod projects;
 pub mod resources;
-pub mod sort;
+pub mod sort_by;
 
 pub use endpoint::Endpoint;
 pub use error::ApiError;

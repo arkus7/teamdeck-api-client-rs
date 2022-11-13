@@ -2,13 +2,13 @@ use derive_builder::Builder;
 use http::Method;
 use std::borrow::Cow;
 
-use crate::api::{paged::Pageable, sort::SortDirection, Endpoint, ParamValue, QueryParams};
+use crate::api::{paged::Pageable, sort_by::SortBy, Endpoint, ParamValue, QueryParams};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 
 pub enum BookingsSortBy {
-    StartDate(SortDirection),
-    EndDate(SortDirection),
+    StartDate,
+    EndDate,
     Minutes,
     ResourceId,
     ProjectId,
@@ -16,21 +16,15 @@ pub enum BookingsSortBy {
 
 impl Default for BookingsSortBy {
     fn default() -> Self {
-        Self::StartDate(SortDirection::Descending)
+        Self::StartDate
     }
 }
 
 impl BookingsSortBy {
     fn as_str(self) -> &'static str {
         match self {
-            Self::StartDate(direction) => match direction {
-                SortDirection::Ascending => "start_date",
-                SortDirection::Descending => "-start_date",
-            },
-            Self::EndDate(direction) => match direction {
-                SortDirection::Ascending => "end_date",
-                SortDirection::Descending => "-end_date",
-            },
+            Self::StartDate => "start_date",
+            Self::EndDate => "end_date",
             Self::Minutes => "minutes",
             Self::ResourceId => "resource_id",
             Self::ProjectId => "project_id",
@@ -67,7 +61,7 @@ impl ParamValue<'static> for BookingsExpand {
 #[builder(setter(strip_option))]
 pub struct Bookings<'a> {
     #[builder(default)]
-    sort: Option<BookingsSortBy>,
+    sort: Option<SortBy<BookingsSortBy>>,
     #[builder(default)]
     expand: Option<BookingsExpand>,
     #[builder(default)]

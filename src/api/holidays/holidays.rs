@@ -1,7 +1,7 @@
 use crate::api::{
     paged::Pageable,
     params::{self, ParamValue},
-    Endpoint, QueryParams,
+    Endpoint, QueryParams, sort_by::SortBy,
 };
 use chrono::NaiveDate;
 use derive_builder::Builder;
@@ -41,7 +41,7 @@ impl ParamValue<'static> for HolidaysSortBy {
 #[builder(setter(strip_option))]
 pub struct Holidays<'a> {
     #[builder(default)]
-    sort: Option<HolidaysSortBy>,
+    sort: Option<SortBy<HolidaysSortBy>>,
     #[builder(default)]
     page: Option<u64>,
     #[builder(setter(into), default)]

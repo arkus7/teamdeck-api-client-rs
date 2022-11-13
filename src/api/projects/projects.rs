@@ -1,4 +1,4 @@
-use crate::api::{paged::Pageable, params::ParamValue, Endpoint, QueryParams};
+use crate::api::{paged::Pageable, params::ParamValue, Endpoint, QueryParams, sort_by::SortBy};
 use derive_builder::Builder;
 use http::Method;
 use std::borrow::Cow;
@@ -55,7 +55,7 @@ impl ParamValue<'static> for ProjectsExpand {
 #[builder(setter(strip_option))]
 pub struct Projects<'a> {
     #[builder(default)]
-    sort: Option<ProjectsSortBy>,
+    sort: Option<SortBy<ProjectsSortBy>>,
     #[builder(default)]
     page: Option<u64>,
     #[builder(default)]

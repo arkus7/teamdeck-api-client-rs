@@ -1,4 +1,4 @@
-use crate::api::{paged::Pageable, params::ParamValue, Endpoint, QueryParams};
+use crate::api::{paged::Pageable, params::ParamValue, sort_by::SortBy, Endpoint, QueryParams};
 use derive_builder::Builder;
 use http::Method;
 use std::borrow::Cow;
@@ -57,7 +57,7 @@ impl ParamValue<'static> for ResourcesExpand {
 #[builder(setter(strip_option))]
 pub struct Resources<'a> {
     #[builder(default)]
-    sort: Option<ResourcesSortBy>,
+    sort: Option<SortBy<ResourcesSortBy>>,
     #[builder(default)]
     page: Option<u64>,
     #[builder(setter(into), default)]
@@ -107,6 +107,7 @@ mod tests {
     use super::{Resources, ResourcesExpand};
     use crate::api::query::Query;
     use crate::api::resources::resources::ResourcesSortBy;
+    use crate::api::sort_by::SortBy;
     use crate::{
         api::{self},
         test::client::{ExpectedUrl, SingleTestClient},
@@ -159,7 +160,7 @@ mod tests {
 
         let endpoint = api::ignore(
             Resources::builder()
-                .sort(ResourcesSortBy::Email)
+                .sort(SortBy::Ascending(ResourcesSortBy::Email))
                 .build()
                 .unwrap(),
         );

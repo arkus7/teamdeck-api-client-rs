@@ -3,7 +3,7 @@ use derive_builder::Builder;
 use http::Method;
 use std::borrow::Cow;
 
-use super::{endpoint::Endpoint, QueryParams, paged::Pageable};
+use super::{endpoint::Endpoint, paged::Pageable, QueryParams};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ResourcesSortBy {

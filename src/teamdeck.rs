@@ -83,7 +83,7 @@ impl api::Client for Teamdeck {
             };
 
             let http_request = request.body(body)?;
-            let request = dbg!(http_request.try_into()?);
+            let request = http_request.try_into()?;
             let response = self.client.execute(request)?;
 
             let mut http_response = HttpResponse::builder()

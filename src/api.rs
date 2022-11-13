@@ -2,6 +2,7 @@ mod client;
 mod endpoint;
 pub mod error;
 pub mod ignore;
+mod paged;
 mod params;
 mod query;
 
@@ -21,6 +22,8 @@ pub use self::params::QueryParams;
 
 pub use self::query::AsyncQuery;
 pub use self::query::Query;
+
+pub use self::paged::{paged, Paged, Pagination};
 
 pub use self::resources::Resources;
 pub use self::resources::ResourcesBuilder;

@@ -3,7 +3,7 @@ use derive_builder::Builder;
 use http::Method;
 use std::borrow::Cow;
 
-use super::{endpoint::Endpoint, QueryParams};
+use super::{endpoint::Endpoint, QueryParams, paged::Pageable};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ResourcesSortBy {
@@ -102,7 +102,7 @@ impl<'a> Endpoint for Resources<'a> {
         params
     }
 }
-
+impl<'a> Pageable for Resources<'a> {}
 #[cfg(test)]
 mod tests {
     use super::{Resources, ResourcesExpand};
@@ -176,6 +176,18 @@ mod tests {
         let client = SingleTestClient::new_raw(endpoint, "");
 
         let endpoint = api::ignore(Resources::builder().active(true).build().unwrap());
+        endpoint.query(&client).unwrap();
+    }
+
+    #[test]
+    fn endpoint_active_default() {
+        let endpoint = ExpectedUrl::builder()
+            .endpoint("resources")
+            .build()
+            .unwrap();
+        let client = SingleTestClient::new_raw(endpoint, "");
+
+        let endpoint = api::ignore(Resources::builder().build().unwrap());
         endpoint.query(&client).unwrap();
     }
 

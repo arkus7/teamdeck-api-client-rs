@@ -199,12 +199,15 @@ where
 
 #[cfg(test)]
 mod tests {
-    use std::borrow::Cow;
-    use serde::{Deserialize, Serialize};
     use http::{Method, StatusCode};
+    use serde::{Deserialize, Serialize};
     use serde_json::json;
+    use std::borrow::Cow;
 
-    use crate::{api::{Endpoint, self, ApiError, Query, AsyncQuery}, test::client::{ExpectedUrl, SingleTestClient}};
+    use crate::{
+        api::{self, ApiError, AsyncQuery, Endpoint, Query},
+        test::client::{ExpectedUrl, SingleTestClient},
+    };
 
     use super::{Pageable, Pagination};
 
@@ -240,10 +243,7 @@ mod tests {
 
         let res: Result<Vec<DummyResult>, _> = api::paged(endpoint, Pagination::All).query(&client);
         let err = res.unwrap_err();
-        if let ApiError::TeamdeckService {
-            status, ..
-        } = err
-        {
+        if let ApiError::TeamdeckService { status, .. } = err {
             assert_eq!(status, http::StatusCode::OK);
         } else {
             panic!("unexpected error: {}", err);
@@ -263,10 +263,7 @@ mod tests {
 
         let res: Result<Vec<DummyResult>, _> = api::paged(endpoint, Pagination::All).query(&client);
         let err = res.unwrap_err();
-        if let ApiError::TeamdeckService {
-            status, ..
-        } = err
-        {
+        if let ApiError::TeamdeckService { status, .. } = err {
             assert_eq!(status, http::StatusCode::NOT_FOUND);
         } else {
             panic!("unexpected error: {}", err);
@@ -291,10 +288,7 @@ mod tests {
 
         let res: Result<Vec<DummyResult>, _> = api::paged(endpoint, Pagination::All).query(&client);
         let err = res.unwrap_err();
-        if let ApiError::Teamdeck {
-            msg,
-        } = err
-        {
+        if let ApiError::Teamdeck { msg } = err {
             assert_eq!(msg, "dummy error message");
         } else {
             panic!("unexpected error: {}", err);
@@ -319,10 +313,7 @@ mod tests {
 
         let res: Result<Vec<DummyResult>, _> = api::paged(endpoint, Pagination::All).query(&client);
         let err = res.unwrap_err();
-        if let ApiError::Teamdeck {
-            msg,
-        } = err
-        {
+        if let ApiError::Teamdeck { msg } = err {
             assert_eq!(msg, "dummy error message");
         } else {
             panic!("unexpected error: {}", err);
@@ -345,17 +336,14 @@ mod tests {
 
         let res: Result<Vec<DummyResult>, _> = api::paged(endpoint, Pagination::All).query(&client);
         let err = res.unwrap_err();
-        if let ApiError::TeamdeckUnrecognized {
-            obj,
-        } = err
-        {
+        if let ApiError::TeamdeckUnrecognized { obj } = err {
             assert_eq!(obj, err_obj);
         } else {
             panic!("unexpected error: {}", err);
         }
     }
 
-/*     
+    /*
     #[test]
     fn test_pagination_all() {
         let endpoint = ExpectedUrl::builder()

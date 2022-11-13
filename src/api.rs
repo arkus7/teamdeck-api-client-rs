@@ -24,7 +24,3 @@ pub use self::query::AsyncQuery;
 pub use self::query::Query;
 
 pub use self::paged::{paged, Paged, Pagination};
-
-pub use self::resources::Resources;
-pub use self::resources::ResourcesBuilder;
-pub use self::resources::ResourcesBuilderError;

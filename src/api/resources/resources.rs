@@ -1,9 +1,7 @@
-use crate::api::params::ParamValue;
+use crate::api::{paged::Pageable, params::ParamValue, Endpoint, QueryParams};
 use derive_builder::Builder;
 use http::Method;
 use std::borrow::Cow;
-
-use super::{endpoint::Endpoint, paged::Pageable, QueryParams};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ResourcesSortBy {
@@ -88,7 +86,7 @@ impl<'a> Endpoint for Resources<'a> {
         Method::GET
     }
 
-    fn parameters(&self) -> super::QueryParams {
+    fn parameters(&self) -> QueryParams {
         let mut params = QueryParams::default();
 
         params
@@ -103,12 +101,14 @@ impl<'a> Endpoint for Resources<'a> {
     }
 }
 impl<'a> Pageable for Resources<'a> {}
+
 #[cfg(test)]
 mod tests {
     use super::{Resources, ResourcesExpand};
     use crate::api::query::Query;
+    use crate::api::resources::resources::ResourcesSortBy;
     use crate::{
-        api::{self, resources::ResourcesSortBy},
+        api::{self},
         test::client::{ExpectedUrl, SingleTestClient},
     };
 

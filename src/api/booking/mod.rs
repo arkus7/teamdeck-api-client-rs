@@ -1,5 +1,5 @@
-mod bookings;
 mod booking;
+mod bookings;
 
-pub use bookings::{Bookings, BookingsBuilder, BookingsBuilderError};
 pub use booking::{Booking, BookingBuilder, BookingBuilderError};
+pub use bookings::{Bookings, BookingsBuilder, BookingsBuilderError};

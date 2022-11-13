@@ -15,9 +15,9 @@ pub struct Booking {
 }
 
 impl Booking {
-  pub fn builder() -> BookingBuilder {
-      BookingBuilder::default()
-  }
+    pub fn builder() -> BookingBuilder {
+        BookingBuilder::default()
+    }
 }
 
 impl Endpoint for Booking {

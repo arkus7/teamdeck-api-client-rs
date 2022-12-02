@@ -72,7 +72,7 @@ impl ParamValue<'static> for TimeEntriesExpand {
 
 #[derive(Debug, Builder)]
 #[builder(setter(strip_option))]
-pub struct TimeEntries<'a> {
+pub struct TimeEntries {
     #[builder(default)]
     sort: Option<SortBy<TimeEntriesSortBy>>,
     #[builder(default)]
@@ -80,11 +80,11 @@ pub struct TimeEntries<'a> {
     #[builder(default)]
     expand: Option<TimeEntriesExpand>,
     #[builder(default)]
-    resource_id: Option<u64>,
+    resource_id: Option<Vec<u64>>,
     #[builder(default)]
-    project_id: Option<u64>,
+    project_id: Option<Vec<u64>>,
     #[builder(setter(into), default)]
-    external_id: Option<Cow<'a, str>>,
+    external_id: Option<Vec<String>>,
     #[builder(default)]
     start_date_from: Option<NaiveDate>,
     #[builder(default)]
@@ -97,13 +97,13 @@ pub struct TimeEntries<'a> {
     date: Option<NaiveDate>,
 }
 
-impl<'a> TimeEntries<'a> {
-    pub fn builder() -> TimeEntriesBuilder<'a> {
+impl TimeEntries {
+    pub fn builder() -> TimeEntriesBuilder {
         TimeEntriesBuilder::default()
     }
 }
 
-impl<'a> Endpoint for TimeEntries<'a> {
+impl Endpoint for TimeEntries {
     fn url(&self) -> Cow<'static, str> {
         "time-entries".into()
     }
@@ -119,9 +119,9 @@ impl<'a> Endpoint for TimeEntries<'a> {
             .push_opt("sort", self.sort)
             .push_opt("page", self.page)
             .push_opt("expand", self.expand)
-            .push_opt("resource_id", self.resource_id)
-            .push_opt("project_id", self.project_id)
-            .push_opt("external_id", self.external_id.as_ref())
+            .push_opt("resource_id", self.resource_id.clone())
+            .push_opt("project_id", self.project_id.clone())
+            .push_opt("external_id", self.external_id.clone())
             .push_opt("start_date_from", self.start_date_from)
             .push_opt("start_date_to", self.start_date_to)
             .push_opt("end_date_from", self.end_date_from)
@@ -132,6 +132,6 @@ impl<'a> Endpoint for TimeEntries<'a> {
     }
 }
 
-impl<'a> Pageable for TimeEntries<'a> {}
+impl Pageable for TimeEntries {}
 
 // TODO: Add tests

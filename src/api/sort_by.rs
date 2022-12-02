@@ -1,4 +1,4 @@
-use std::borrow::Cow;
+use std::{borrow::Cow};
 
 use super::ParamValue;
 
@@ -7,8 +7,8 @@ pub enum SortBy<T>
 where
     T: ParamValue<'static>,
 {
-    Ascending(T),
-    Descending(T),
+    Asc(T),
+    Desc(T),
 }
 
 impl<T> Default for SortBy<T>
@@ -17,7 +17,7 @@ where
     T: Default,
 {
     fn default() -> Self {
-        Self::Ascending(T::default())
+        Self::Asc(T::default())
     }
 }
 
@@ -27,8 +27,8 @@ where
 {
     fn as_value(&self) -> Cow<'static, str> {
         match self {
-            SortBy::Ascending(val) => val.as_value(),
-            SortBy::Descending(val) => format!("-{}", val.as_value()).into(),
+            SortBy::Asc(val) => val.as_value(),
+            SortBy::Desc(val) => format!("-{}", val.as_value()).into(),
         }
     }
 }
@@ -63,15 +63,15 @@ mod tests {
     #[test]
     fn ascending_inner_default_by_default() {
         let sort_by: SortBy<DummySortBy> = Default::default();
-        assert_eq!(sort_by, SortBy::<DummySortBy>::Ascending(DummySortBy::Name))
+        assert_eq!(sort_by, SortBy::<DummySortBy>::Asc(DummySortBy::Name))
     }
 
     #[test]
     fn returns_inner_param_value_when_ascending() {
         let sort_by_values = vec![
-            SortBy::Ascending(DummySortBy::Name),
-            SortBy::Ascending(DummySortBy::Email),
-            SortBy::Ascending(DummySortBy::Active),
+            SortBy::Asc(DummySortBy::Name),
+            SortBy::Asc(DummySortBy::Email),
+            SortBy::Asc(DummySortBy::Active),
         ];
 
         let expected_values: Vec<Cow<str>> = vec!["name".into(), "email".into(), "active".into()];
@@ -86,9 +86,9 @@ mod tests {
     #[test]
     fn adds_hyphen_prefix_to_inner_values_when_descending() {
         let sort_by_values = vec![
-            SortBy::Descending(DummySortBy::Name),
-            SortBy::Descending(DummySortBy::Email),
-            SortBy::Descending(DummySortBy::Active),
+            SortBy::Desc(DummySortBy::Name),
+            SortBy::Desc(DummySortBy::Email),
+            SortBy::Desc(DummySortBy::Active),
         ];
 
         let expected_values: Vec<Cow<str>> =

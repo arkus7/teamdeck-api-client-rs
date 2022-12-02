@@ -160,7 +160,7 @@ mod tests {
 
         let endpoint = api::ignore(
             Resources::builder()
-                .sort(SortBy::Ascending(ResourcesSortBy::Email))
+                .sort(SortBy::Asc(ResourcesSortBy::Email))
                 .build()
                 .unwrap(),
         );

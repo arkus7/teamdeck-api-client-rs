@@ -72,6 +72,16 @@ impl ParamValue<'static> for NaiveDate {
     }
 }
 
+impl<T> ParamValue<'static> for Vec<T> where T: ParamValue<'static> {
+    fn as_value(&self) -> Cow<'static, str> {
+        self.iter()
+            .map(|v| v.as_value())
+            .collect::<Vec<_>>()
+            .join(",")
+            .into()
+    }
+}
+
 #[derive(Debug, Default, Clone)]
 pub struct QueryParams<'a> {
     params: Vec<(Cow<'a, str>, Cow<'a, str>)>,

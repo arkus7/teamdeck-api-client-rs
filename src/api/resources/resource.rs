@@ -37,6 +37,8 @@ impl Endpoint for Resource {
 
 #[cfg(test)]
 mod tests {
+    use http::{Method, StatusCode};
+
     use super::Resource;
     use crate::{
         api::{self, resources::resources::ResourcesExpand, Query},
@@ -47,9 +49,7 @@ mod tests {
         let endpoint = api::ignore(Resource::builder().id(1).build().unwrap());
 
         let expected = ExpectedRequest::builder()
-            .method("GET")
             .path("/resources/1")
-            .respond_with_status(200)
             .build()
             .unwrap();
 
@@ -69,10 +69,8 @@ mod tests {
         );
 
         let expected = ExpectedRequest::builder()
-            .method("GET")
             .path("/resources/1")
             .query("expand=custom_field_values")
-            .respond_with_status(200)
             .build()
             .unwrap();
 

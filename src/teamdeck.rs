@@ -4,7 +4,7 @@ use async_trait::async_trait;
 use bytes::Bytes;
 use http::HeaderValue;
 use http::Response as HttpResponse;
-use log::{debug, error, info};
+use log::{debug, error};
 use reqwest::blocking::Client as BlockingClient;
 use reqwest::Client as AsyncClient;
 

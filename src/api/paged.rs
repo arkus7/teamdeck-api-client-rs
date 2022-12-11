@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use http::{HeaderMap, Request};
+use http::Request;
 use serde::de::DeserializeOwned;
 
 use super::{
@@ -96,7 +96,7 @@ where
 
             let response = client.rest(request, body)?;
             let status = response.status();
-            let value = if let Ok(val) = serde_json::from_slice(&response.body()) {
+            let value = if let Ok(val) = serde_json::from_slice(response.body()) {
                 val
             } else {
                 return Err(ApiError::server_error(status, response.body()));
@@ -167,7 +167,7 @@ where
 
             let response = client.rest_async(request, body).await?;
             let status = response.status();
-            let value = if let Ok(val) = serde_json::from_slice(&response.body()) {
+            let value = if let Ok(val) = serde_json::from_slice(response.body()) {
                 val
             } else {
                 return Err(ApiError::server_error(status, response.body()));
@@ -236,7 +236,7 @@ mod tests {
         let endpoint = api::paged(Dummy::default(), Pagination::All);
 
         let expected = ExpectedRequest::builder()
-            .method("GET")
+            .method(Method::GET)
             .path("/paged_dummy")
             .query("page=1")
             .response_body("not json")
@@ -260,10 +260,10 @@ mod tests {
         let endpoint = Dummy::default();
 
         let expected = ExpectedRequest::builder()
-            .method("GET")
+            .method(Method::GET)
             .path("/paged_dummy")
             .query("page=1")
-            .respond_with_status(404)
+            .response_status(StatusCode::NOT_FOUND)
             .response_body("")
             .build()
             .unwrap();
@@ -284,10 +284,10 @@ mod tests {
         let endpoint = Dummy::default();
 
         let expected = ExpectedRequest::builder()
-            .method("GET")
+            .method(Method::GET)
             .path("/paged_dummy")
             .query("page=1")
-            .respond_with_status(404)
+            .response_status(StatusCode::NOT_FOUND)
             .response_body(
                 json!({
                   "message": "dummy error message",
@@ -313,10 +313,10 @@ mod tests {
         let endpoint = Dummy::default();
 
         let expected = ExpectedRequest::builder()
-            .method("GET")
+            .method(Method::GET)
             .path("/paged_dummy")
             .query("page=1")
-            .respond_with_status(404)
+            .response_status(StatusCode::NOT_FOUND)
             .response_body(
                 json!({
                   "error": "dummy error message",
@@ -342,14 +342,14 @@ mod tests {
         let err_obj = json!({
             "bogus": "dummy error message",
         });
-        
+
         let endpoint = Dummy::default();
 
         let expected = ExpectedRequest::builder()
-            .method("GET")
+            .method(Method::GET)
             .path("/paged_dummy")
             .query("page=1")
-            .respond_with_status(404)
+            .response_status(StatusCode::NOT_FOUND)
             .response_body(err_obj.to_string())
             .build()
             .unwrap();

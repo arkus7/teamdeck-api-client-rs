@@ -104,6 +104,8 @@ impl<'a> Pageable for Resources<'a> {}
 
 #[cfg(test)]
 mod tests {
+    use http::Method;
+
     use super::{Resources, ResourcesExpand};
     use crate::api::query::Query;
     use crate::api::resources::resources::ResourcesSortBy;
@@ -140,7 +142,7 @@ mod tests {
         let endpoint = api::ignore(Resources::builder().build().unwrap());
 
         let expected = ExpectedRequest::builder()
-            .method("GET")
+            .method(Method::GET)
             .path("/resources")
             .build()
             .unwrap();
@@ -160,7 +162,7 @@ mod tests {
         );
 
         let expected = ExpectedRequest::builder()
-            .method("GET")
+            .method(Method::GET)
             .path("/resources")
             .query("sort=email")
             .build()
@@ -181,7 +183,7 @@ mod tests {
         );
 
         let expected = ExpectedRequest::builder()
-            .method("GET")
+            .method(Method::GET)
             .path("/resources")
             .query("sort=-email")
             .build()
@@ -197,7 +199,7 @@ mod tests {
         let endpoint = api::ignore(Resources::builder().active(true).build().unwrap());
 
         let expected = ExpectedRequest::builder()
-            .method("GET")
+            .method(Method::GET)
             .path("/resources")
             .query("active=1")
             .build()
@@ -213,7 +215,7 @@ mod tests {
         let endpoint = api::ignore(Resources::builder().build().unwrap());
 
         let expected = ExpectedRequest::builder()
-            .method("GET")
+            .method(Method::GET)
             .path("/resources")
             .query("")
             .build()
@@ -229,7 +231,7 @@ mod tests {
         let endpoint = api::ignore(Resources::builder().active(false).build().unwrap());
 
         let expected = ExpectedRequest::builder()
-            .method("GET")
+            .method(Method::GET)
             .path("/resources")
             .query("active=0")
             .build()
@@ -245,7 +247,7 @@ mod tests {
         let endpoint = api::ignore(Resources::builder().page(2).build().unwrap());
 
         let expected = ExpectedRequest::builder()
-            .method("GET")
+            .method(Method::GET)
             .path("/resources")
             .query("page=2")
             .build()
@@ -261,7 +263,7 @@ mod tests {
         let endpoint = api::ignore(Resources::builder().name("test").build().unwrap());
 
         let expected = ExpectedRequest::builder()
-            .method("GET")
+            .method(Method::GET)
             .path("/resources")
             .query("name=test")
             .build()
@@ -276,7 +278,7 @@ mod tests {
     fn endpoint_email() {
         let endpoint = api::ignore(Resources::builder().email("test@test.com").build().unwrap());
         let expected = ExpectedRequest::builder()
-            .method("GET")
+            .method(Method::GET)
             .path("/resources")
             .query("email=test%40test.com")
             .build()
@@ -299,7 +301,7 @@ mod tests {
         );
 
         let expected = ExpectedRequest::builder()
-            .method("GET")
+            .method(Method::GET)
             .path("/resources")
             .query("expand=custom_field_values")
             .build()

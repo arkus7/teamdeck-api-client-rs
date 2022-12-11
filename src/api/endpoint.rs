@@ -42,7 +42,7 @@ where
 
         let response = client.rest(request, body)?;
         let status = response.status();
-        let value = if let Ok(val) = serde_json::from_slice(&response.body()) {
+        let value = if let Ok(val) = serde_json::from_slice(response.body()) {
             val
         } else {
             return Err(ApiError::server_error(status, response.body()));

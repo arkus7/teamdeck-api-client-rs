@@ -1,9 +1,4 @@
-use crate::api::{
-    paged::Pageable,
-    params::{self, ParamValue},
-    sort_by::SortBy,
-    Endpoint, QueryParams,
-};
+use crate::api::{paged::Pageable, params::ParamValue, sort_by::SortBy, Endpoint, QueryParams};
 use chrono::NaiveDate;
 use derive_builder::Builder;
 use http::Method;

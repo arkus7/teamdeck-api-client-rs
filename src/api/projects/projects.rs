@@ -93,4 +93,6 @@ impl<'a> Endpoint for Projects<'a> {
     }
 }
 
+impl Pageable for Projects<'_> {}
+
 // TODO: Add tests

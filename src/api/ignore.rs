@@ -1,7 +1,7 @@
 use async_trait::async_trait;
-use http::{header, Request};
+use http::Request;
 
-use crate::api::{query, ApiError, AsyncClient, AsyncQuery, Client, Endpoint, Query};
+use crate::api::{ApiError, AsyncClient, AsyncQuery, Client, Endpoint, Query};
 
 use super::endpoint;
 
@@ -75,7 +75,7 @@ where
 mod tests {
     use std::borrow::Cow;
 
-    use http::Method;
+    use http::{Method, StatusCode};
     use serde_json::json;
 
     use crate::api::endpoint::Endpoint;
@@ -103,7 +103,7 @@ mod tests {
     #[test]
     fn test_non_json_response() {
         let expected = ExpectedRequest::builder()
-            .method("GET")
+            .method(Method::GET)
             .path("/dummy")
             .response_body("not json")
             .build()
@@ -118,7 +118,7 @@ mod tests {
     #[ignore = "Throws error 'Cannot drop a runtime in a context where blocking is not allowed. This happens when a runtime is dropped from within an asynchronous context.'"]
     async fn test_non_json_response_async() {
         let expected = ExpectedRequest::builder()
-            .method("GET")
+            .method(Method::GET)
             .path("/dummy")
             .response_body("not json")
             .build()
@@ -132,9 +132,9 @@ mod tests {
     #[test]
     fn test_teamdeck_error_bad_json() {
         let expected = ExpectedRequest::builder()
-            .method("GET")
+            .method(Method::GET)
             .path("/dummy")
-            .respond_with_status(404)
+            .response_status(StatusCode::NOT_FOUND)
             .build()
             .unwrap();
 
@@ -151,9 +151,9 @@ mod tests {
     #[test]
     fn test_teamdeck_error_detection() {
         let expected = ExpectedRequest::builder()
-            .method("GET")
+            .method(Method::GET)
             .path("/dummy")
-            .respond_with_status(404)
+            .response_status(StatusCode::NOT_FOUND)
             .response_body(
                 json!({
                     "message": "dummy error message",
@@ -176,9 +176,9 @@ mod tests {
     #[test]
     fn test_teamdeck_error_detection_legacy() {
         let expected = ExpectedRequest::builder()
-            .method("GET")
+            .method(Method::GET)
             .path("/dummy")
-            .respond_with_status(404)
+            .response_status(StatusCode::NOT_FOUND)
             .response_body(
                 json!({
                     "error": "dummy error message",
@@ -204,9 +204,9 @@ mod tests {
             "bogus": "dummy error message",
         });
         let expected = ExpectedRequest::builder()
-            .method("GET")
+            .method(Method::GET)
             .path("/dummy")
-            .respond_with_status(404)
+            .response_status(StatusCode::NOT_FOUND)
             .response_body(err_obj.to_string())
             .build()
             .unwrap();

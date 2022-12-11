@@ -1,5 +1,6 @@
 use async_trait::async_trait;
 use derive_builder::Builder;
+use http::{Method, StatusCode};
 use httptest::Server;
 use httptest::{Expectation, ServerHandle, ServerPool};
 use reqwest::blocking::Client as BlockingClient;
@@ -32,10 +33,7 @@ impl<'a> TestClient<'a> {
     fn new() -> Self {
         let server = SERVER_POOL.get_server();
         let client = BlockingClient::new();
-        Self {
-            server,
-            client,
-        }
+        Self { server, client }
     }
 
     pub(crate) fn add_expectation(&self, expectation: Expectation) -> &Self {
@@ -58,10 +56,11 @@ impl<'a> TestClient<'a> {
 
 #[derive(Builder, Debug)]
 pub(crate) struct ExpectedRequest {
-    method: &'static str,
+    #[builder(default = "Method::GET")]
+    method: Method,
     path: &'static str,
-    #[builder(default = "200")]
-    respond_with_status: u16,
+    #[builder(default = "StatusCode::OK")]
+    response_status: StatusCode,
     #[builder(default, setter(strip_option, into))]
     query: Option<&'static str>,
     // #[builder(default, setter(strip_option, into))]
@@ -84,7 +83,8 @@ impl ExpectedRequest {
 
 impl From<ExpectedRequest> for Expectation {
     fn from(expect: ExpectedRequest) -> Self {
-        let method_matcher = matchers::request::method(expect.method);
+        let method: &'static str = Box::leak(expect.method.to_string().into_boxed_str());
+        let method_matcher = matchers::request::method(method);
         let path_matcher = matchers::request::path(expect.path);
 
         let query_matcher = matchers::request::query(expect.query.unwrap_or_default());
@@ -104,7 +104,7 @@ impl From<ExpectedRequest> for Expectation {
 
         let response_headers = expect.response_headers.unwrap_or_default();
 
-        let mut responder = responders::status_code(expect.respond_with_status);
+        let mut responder = responders::status_code(expect.response_status.as_u16());
         for (key, value) in response_headers {
             responder = responder.append_header(key, value);
         }

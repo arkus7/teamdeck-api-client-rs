@@ -37,8 +37,6 @@ impl Endpoint for Resource {
 
 #[cfg(test)]
 mod tests {
-    use http::{Method, StatusCode};
-
     use super::Resource;
     use crate::{
         api::{self, resources::many::ResourcesExpand, Query},

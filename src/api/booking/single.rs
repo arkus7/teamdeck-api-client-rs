@@ -38,3 +38,45 @@ impl Endpoint for Booking {
 }
 
 // TODO: Add tests
+#[cfg(test)]
+mod tests {
+    use super::Booking;
+    use crate::api::{self, Query};
+    use crate::api::booking::many::BookingsExpand;
+    use crate::test::client::{ExpectedRequest, TestClient};
+
+    #[test]
+    fn booking() {
+        let endpoint = api::ignore(Booking::builder().id(1).build().unwrap());
+
+        let expected = ExpectedRequest::builder()
+            .path("/bookings/1")
+            .build()
+            .unwrap();
+
+        let client = TestClient::expecting(expected);
+
+        endpoint.query(&client).unwrap();
+    }
+
+    #[test]
+    fn booking_expand() {
+        let endpoint = api::ignore(
+            Booking::builder()
+                .id(1)
+                .expand(Some(BookingsExpand::Tags))
+                .build()
+                .unwrap(),
+        );
+
+        let expected = ExpectedRequest::builder()
+            .path("/bookings/1")
+            .query("expand=tags")
+            .build()
+            .unwrap();
+
+        let client = TestClient::expecting(expected);
+
+        endpoint.query(&client).unwrap();
+    }
+}

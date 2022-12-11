@@ -206,7 +206,7 @@ mod tests {
 
     use crate::{
         api::{self, ApiError, AsyncQuery, Endpoint, Query},
-        test::client::{ExpectedUrl, SingleTestClient},
+        test::client_v2::{ExpectedRequest, TestClient},
     };
 
     use super::{Pageable, Pagination};
@@ -233,18 +233,23 @@ mod tests {
 
     #[test]
     fn test_teamdeck_non_json_response() {
-        let endpoint = ExpectedUrl::builder()
-            .endpoint("paged_dummy")
-            .add_query_params(&[("page", "1")])
+        let endpoint = api::paged(Dummy::default(), Pagination::All);
+
+        let expected = ExpectedRequest::builder()
+            .method("GET")
+            .path("/paged_dummy")
+            .query("page=1")
+            .response_body("not json")
             .build()
             .unwrap();
-        let client = SingleTestClient::new_raw(endpoint, "not json");
-        let endpoint = Dummy::default();
 
-        let res: Result<Vec<DummyResult>, _> = api::paged(endpoint, Pagination::All).query(&client);
+        let client = TestClient::expecting(expected);
+
+        let res: Result<Vec<DummyResult>, _> = endpoint.query(&client);
+
         let err = res.unwrap_err();
         if let ApiError::TeamdeckService { status, .. } = err {
-            assert_eq!(status, http::StatusCode::OK);
+            assert_eq!(status, StatusCode::OK);
         } else {
             panic!("unexpected error: {}", err);
         }
@@ -252,14 +257,18 @@ mod tests {
 
     #[test]
     fn test_teamdeck_error_bad_json() {
-        let endpoint = ExpectedUrl::builder()
-            .endpoint("paged_dummy")
-            .add_query_params(&[("page", "1")])
-            .status(StatusCode::NOT_FOUND)
+        let endpoint = Dummy::default();
+
+        let expected = ExpectedRequest::builder()
+            .method("GET")
+            .path("/paged_dummy")
+            .query("page=1")
+            .respond_with_status(404)
+            .response_body("")
             .build()
             .unwrap();
-        let client = SingleTestClient::new_raw(endpoint, "");
-        let endpoint = Dummy::default();
+
+        let client = TestClient::expecting(expected);
 
         let res: Result<Vec<DummyResult>, _> = api::paged(endpoint, Pagination::All).query(&client);
         let err = res.unwrap_err();
@@ -272,19 +281,23 @@ mod tests {
 
     #[test]
     fn test_teamdeck_error_detection() {
-        let endpoint = ExpectedUrl::builder()
-            .endpoint("paged_dummy")
-            .add_query_params(&[("page", "1")])
-            .status(StatusCode::NOT_FOUND)
+        let endpoint = Dummy::default();
+
+        let expected = ExpectedRequest::builder()
+            .method("GET")
+            .path("/paged_dummy")
+            .query("page=1")
+            .respond_with_status(404)
+            .response_body(
+                json!({
+                  "message": "dummy error message",
+                })
+                .to_string(),
+            )
             .build()
             .unwrap();
-        let client = SingleTestClient::new_json(
-            endpoint,
-            &json!({
-                "message": "dummy error message",
-            }),
-        );
-        let endpoint = Dummy::default();
+
+        let client = TestClient::expecting(expected);
 
         let res: Result<Vec<DummyResult>, _> = api::paged(endpoint, Pagination::All).query(&client);
         let err = res.unwrap_err();
@@ -297,19 +310,23 @@ mod tests {
 
     #[test]
     fn test_teamdeck_error_detection_legacy() {
-        let endpoint = ExpectedUrl::builder()
-            .endpoint("paged_dummy")
-            .add_query_params(&[("page", "1")])
-            .status(StatusCode::NOT_FOUND)
+        let endpoint = Dummy::default();
+
+        let expected = ExpectedRequest::builder()
+            .method("GET")
+            .path("/paged_dummy")
+            .query("page=1")
+            .respond_with_status(404)
+            .response_body(
+                json!({
+                  "error": "dummy error message",
+                })
+                .to_string(),
+            )
             .build()
             .unwrap();
-        let client = SingleTestClient::new_json(
-            endpoint,
-            &json!({
-                "error": "dummy error message",
-            }),
-        );
-        let endpoint = Dummy::default();
+
+        let client = TestClient::expecting(expected);
 
         let res: Result<Vec<DummyResult>, _> = api::paged(endpoint, Pagination::All).query(&client);
         let err = res.unwrap_err();
@@ -322,17 +339,22 @@ mod tests {
 
     #[test]
     fn test_teamdeck_error_detection_unknown() {
-        let endpoint = ExpectedUrl::builder()
-            .endpoint("paged_dummy")
-            .add_query_params(&[("page", "1")])
-            .status(StatusCode::NOT_FOUND)
-            .build()
-            .unwrap();
         let err_obj = json!({
             "bogus": "dummy error message",
         });
-        let client = SingleTestClient::new_json(endpoint, &err_obj);
+        
         let endpoint = Dummy::default();
+
+        let expected = ExpectedRequest::builder()
+            .method("GET")
+            .path("/paged_dummy")
+            .query("page=1")
+            .respond_with_status(404)
+            .response_body(err_obj.to_string())
+            .build()
+            .unwrap();
+
+        let client = TestClient::expecting(expected);
 
         let res: Result<Vec<DummyResult>, _> = api::paged(endpoint, Pagination::All).query(&client);
         let err = res.unwrap_err();

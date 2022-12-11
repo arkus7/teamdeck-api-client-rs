@@ -108,10 +108,8 @@ mod tests {
     use crate::api::query::Query;
     use crate::api::resources::resources::ResourcesSortBy;
     use crate::api::sort_by::SortBy;
-    use crate::{
-        api::{self},
-        test::client::{ExpectedUrl, SingleTestClient},
-    };
+    use crate::api::{self};
+    use crate::test::client_v2::{ExpectedRequest, TestClient};
 
     #[test]
     fn sort_by_default() {
@@ -139,126 +137,178 @@ mod tests {
 
     #[test]
     fn endpoint() {
-        let endpoint = ExpectedUrl::builder()
-            .endpoint("resources")
+        let endpoint = api::ignore(Resources::builder().build().unwrap());
+
+        let expected = ExpectedRequest::builder()
+            .method("GET")
+            .path("/resources")
             .build()
             .unwrap();
-        let client = SingleTestClient::new_raw(endpoint, "");
 
-        let endpoint = api::ignore(Resources::builder().build().unwrap());
+        let client = TestClient::expecting(expected);
+
         endpoint.query(&client).unwrap();
     }
 
     #[test]
-    fn endpoint_sort() {
-        let endpoint = ExpectedUrl::builder()
-            .endpoint("resources")
-            .add_query_params(&[("sort", "email")])
-            .build()
-            .unwrap();
-        let client = SingleTestClient::new_raw(endpoint, "");
-
+    fn endpoint_sort_ascending() {
         let endpoint = api::ignore(
             Resources::builder()
                 .sort(SortBy::Asc(ResourcesSortBy::Email))
                 .build()
                 .unwrap(),
         );
+
+        let expected = ExpectedRequest::builder()
+            .method("GET")
+            .path("/resources")
+            .query("sort=email")
+            .build()
+            .unwrap();
+
+        let client = TestClient::expecting(expected);
+
+        endpoint.query(&client).unwrap();
+    }
+
+    #[test]
+    fn endpoint_sort_descending() {
+        let endpoint = api::ignore(
+            Resources::builder()
+                .sort(SortBy::Desc(ResourcesSortBy::Email))
+                .build()
+                .unwrap(),
+        );
+
+        let expected = ExpectedRequest::builder()
+            .method("GET")
+            .path("/resources")
+            .query("sort=-email")
+            .build()
+            .unwrap();
+
+        let client = TestClient::expecting(expected);
+
         endpoint.query(&client).unwrap();
     }
 
     #[test]
     fn endpoint_active_true() {
-        let endpoint = ExpectedUrl::builder()
-            .endpoint("resources")
-            .add_query_params(&[("active", "1")])
+        let endpoint = api::ignore(Resources::builder().active(true).build().unwrap());
+
+        let expected = ExpectedRequest::builder()
+            .method("GET")
+            .path("/resources")
+            .query("active=1")
             .build()
             .unwrap();
-        let client = SingleTestClient::new_raw(endpoint, "");
 
-        let endpoint = api::ignore(Resources::builder().active(true).build().unwrap());
+        let client = TestClient::expecting(expected);
+
         endpoint.query(&client).unwrap();
     }
 
     #[test]
     fn endpoint_active_default() {
-        let endpoint = ExpectedUrl::builder()
-            .endpoint("resources")
+        let endpoint = api::ignore(Resources::builder().build().unwrap());
+
+        let expected = ExpectedRequest::builder()
+            .method("GET")
+            .path("/resources")
+            .query("")
             .build()
             .unwrap();
-        let client = SingleTestClient::new_raw(endpoint, "");
 
-        let endpoint = api::ignore(Resources::builder().build().unwrap());
+        let client = TestClient::expecting(expected);
+
         endpoint.query(&client).unwrap();
     }
 
     #[test]
     fn endpoint_active_false() {
-        let endpoint = ExpectedUrl::builder()
-            .endpoint("resources")
-            .add_query_params(&[("active", "0")])
+        let endpoint = api::ignore(Resources::builder().active(false).build().unwrap());
+
+        let expected = ExpectedRequest::builder()
+            .method("GET")
+            .path("/resources")
+            .query("active=0")
             .build()
             .unwrap();
-        let client = SingleTestClient::new_raw(endpoint, "");
 
-        let endpoint = api::ignore(Resources::builder().active(false).build().unwrap());
+        let client = TestClient::expecting(expected);
+
         endpoint.query(&client).unwrap();
     }
 
     #[test]
     fn endpoint_page() {
-        let endpoint = ExpectedUrl::builder()
-            .endpoint("resources")
-            .add_query_params(&[("page", "2")])
+        let endpoint = api::ignore(Resources::builder().page(2).build().unwrap());
+
+        let expected = ExpectedRequest::builder()
+            .method("GET")
+            .path("/resources")
+            .query("page=2")
             .build()
             .unwrap();
-        let client = SingleTestClient::new_raw(endpoint, "");
 
-        let endpoint = api::ignore(Resources::builder().page(2).build().unwrap());
+        let client = TestClient::expecting(expected);
+
         endpoint.query(&client).unwrap();
     }
 
     #[test]
     fn endpoint_name() {
-        let endpoint = ExpectedUrl::builder()
-            .endpoint("resources")
-            .add_query_params(&[("name", "test")])
+        let endpoint = api::ignore(Resources::builder().name("test").build().unwrap());
+
+        let expected = ExpectedRequest::builder()
+            .method("GET")
+            .path("/resources")
+            .query("name=test")
             .build()
             .unwrap();
-        let client = SingleTestClient::new_raw(endpoint, "");
 
-        let endpoint = api::ignore(Resources::builder().name("test").build().unwrap());
+        let client = TestClient::expecting(expected);
+
         endpoint.query(&client).unwrap();
     }
 
     #[test]
     fn endpoint_email() {
-        let endpoint = ExpectedUrl::builder()
-            .endpoint("resources")
-            .add_query_params(&[("email", "test@test.com")])
+        let endpoint = api::ignore(Resources::builder().email("test@test.com").build().unwrap());
+        let expected = ExpectedRequest::builder()
+            .method("GET")
+            .path("/resources")
+            .query("email=test%40test.com")
             .build()
             .unwrap();
-        let client = SingleTestClient::new_raw(endpoint, "");
 
-        let endpoint = api::ignore(Resources::builder().email("test@test.com").build().unwrap());
+        let client = TestClient::expecting(expected);
+
         endpoint.query(&client).unwrap();
+
+        client.assert_expectations();
     }
 
     #[test]
     fn endpoint_expand() {
-        let endpoint = ExpectedUrl::builder()
-            .endpoint("resources")
-            .add_query_params(&[("expand", "custom_field_values")])
-            .build()
-            .unwrap();
-        let client = SingleTestClient::new_raw(endpoint, "");
-
         let endpoint = api::ignore(
             Resources::builder()
                 .expand(ResourcesExpand::CustomFieldValues)
                 .build()
                 .unwrap(),
         );
+
+        let expected = ExpectedRequest::builder()
+            .method("GET")
+            .path("/resources")
+            .query("expand=custom_field_values")
+            .build()
+            .unwrap();
+
+        let client = TestClient::expecting(expected);
+
         endpoint.query(&client).unwrap();
+
+        client.assert_expectations();
     }
 }

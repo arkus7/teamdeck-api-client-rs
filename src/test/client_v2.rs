@@ -1,5 +1,6 @@
 use async_trait::async_trait;
 use derive_builder::Builder;
+use httptest::Server;
 use httptest::{Expectation, ServerHandle, ServerPool};
 use reqwest::blocking::Client as BlockingClient;
 use thiserror::Error;
@@ -8,7 +9,7 @@ use url::Url;
 pub use httptest::matchers;
 pub use httptest::responders;
 
-// Create a server pool that will create at most 2 servers.
+// Create a server pool that will create at most 3 servers.
 static SERVER_POOL: ServerPool = ServerPool::new(3);
 
 use crate::api::{self, ApiError, AsyncClient, Client, RestClient};
@@ -18,20 +19,32 @@ pub(crate) struct TestClient<'a> {
 }
 
 impl<'a> TestClient<'a> {
-    pub(crate) fn new() -> Self {
-        let server = SERVER_POOL.get_server();
-        let client = BlockingClient::new();
-        Self { server, client }
+    pub(crate) fn expecting(req: ExpectedRequest) -> Self {
+        let client = Self::new();
+        client.expect(req);
+        client
     }
 
-    pub(crate) fn expect(&self, expectation: Expectation) -> &Self {
+    pub(crate) fn without_expectations() -> Self {
+        Self::new()
+    }
+
+    fn new() -> Self {
+        let server = SERVER_POOL.get_server();
+        let client = BlockingClient::new();
+        Self {
+            server,
+            client,
+        }
+    }
+
+    pub(crate) fn add_expectation(&self, expectation: Expectation) -> &Self {
         self.server.expect(expectation);
         self
     }
 
-    pub(crate) fn expect_request(&self, req: ExpectedRequest) -> &Self {
-        self.server.expect(req.into());
-        self
+    pub(crate) fn expect(&self, req: ExpectedRequest) -> &Self {
+        self.add_expectation(req.into())
     }
 
     pub(crate) fn url_str(&self, path: &str) -> String {
@@ -47,6 +60,7 @@ impl<'a> TestClient<'a> {
 pub(crate) struct ExpectedRequest {
     method: &'static str,
     path: &'static str,
+    #[builder(default = "200")]
     respond_with_status: u16,
     #[builder(default, setter(strip_option, into))]
     query: Option<&'static str>,
@@ -55,7 +69,7 @@ pub(crate) struct ExpectedRequest {
     #[builder(default, setter(strip_option, into))]
     request_body: Option<serde_json::Value>,
     #[builder(default, setter(strip_option, into))]
-    response_body: Option<serde_json::Value>,
+    response_body: Option<String>,
     #[builder(default, setter(strip_option, into))]
     response_headers: Option<Vec<(String, String)>>,
     #[builder(default, setter(strip_option, into))]

@@ -44,7 +44,6 @@ mod tests {
     };
     #[test]
     fn resource() {
-        let client = TestClient::new();
         let endpoint = api::ignore(Resource::builder().id(1).build().unwrap());
 
         let expected = ExpectedRequest::builder()
@@ -54,14 +53,13 @@ mod tests {
             .build()
             .unwrap();
 
-        client.expect_request(expected);
+        let client = TestClient::expecting(expected);
 
         endpoint.query(&client).unwrap();
     }
 
     #[test]
     fn resource_expand() {
-        let client = TestClient::new();
         let endpoint = api::ignore(
             Resource::builder()
                 .id(1)
@@ -78,10 +76,8 @@ mod tests {
             .build()
             .unwrap();
 
-        client.expect_request(expected);
+        let client = TestClient::expecting(expected);
 
         let _ = endpoint.query(&client);
-
-        client.assert_expectations();
     }
 }

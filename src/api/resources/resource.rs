@@ -40,37 +40,45 @@ mod tests {
     use super::Resource;
     use crate::{
         api::{self, resources::resources::ResourcesExpand, Query},
-        test::client::{ExpectedUrl, SingleTestClient},
+        test::{
+            client_v2::{TestClient, ExpectedRequest},
+        },
     };
-
     #[test]
     fn resource() {
-        let client = SingleTestClient::new_raw(
-            ExpectedUrl::builder()
-                .endpoint("resources/1")
-                .build()
-                .unwrap(),
-            "",
-        );
+        let client = TestClient::new();
         let endpoint = api::ignore(Resource::builder().id(1).build().unwrap());
+
+        let expected = ExpectedRequest::builder()
+            .method("GET")
+            .path("/resources/1")
+            .respond_with_status(200)
+            .build()
+            .unwrap();
+
+        client.expect_request(expected);
+
         endpoint.query(&client).unwrap();
     }
 
     #[test]
     fn resource_expand() {
-        let client = SingleTestClient::new_raw(
-            ExpectedUrl::builder()
-                .endpoint("resources/1")
-                .add_query_params(&[("expand", "custom_field_values")])
-                .build()
-                .unwrap(),
-            "",
-        );
-        let endpoint = Resource::builder()
-            .id(1)
-            .expand(Some(ResourcesExpand::CustomFieldValues))
+        let client = TestClient::new();
+        let endpoint = api::ignore(Resource::builder().id(1)
+        .expand(Some(ResourcesExpand::CustomFieldValues)).build().unwrap());
+
+        let expected = ExpectedRequest::builder()
+            .method("GET")
+            .path("/resources/1")
+            .query("expand=custom_field_values")
+            .respond_with_status(200)
             .build()
             .unwrap();
-        api::ignore(endpoint).query(&client).unwrap();
+            
+        client.expect_request(expected);
+
+        let _ = endpoint.query(&client);
+
+        client.assert_expectations();
     }
 }

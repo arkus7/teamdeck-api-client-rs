@@ -40,9 +40,7 @@ mod tests {
     use super::Resource;
     use crate::{
         api::{self, resources::resources::ResourcesExpand, Query},
-        test::{
-            client_v2::{TestClient, ExpectedRequest},
-        },
+        test::client_v2::{ExpectedRequest, TestClient},
     };
     #[test]
     fn resource() {
@@ -64,8 +62,13 @@ mod tests {
     #[test]
     fn resource_expand() {
         let client = TestClient::new();
-        let endpoint = api::ignore(Resource::builder().id(1)
-        .expand(Some(ResourcesExpand::CustomFieldValues)).build().unwrap());
+        let endpoint = api::ignore(
+            Resource::builder()
+                .id(1)
+                .expand(Some(ResourcesExpand::CustomFieldValues))
+                .build()
+                .unwrap(),
+        );
 
         let expected = ExpectedRequest::builder()
             .method("GET")
@@ -74,7 +77,7 @@ mod tests {
             .respond_with_status(200)
             .build()
             .unwrap();
-            
+
         client.expect_request(expected);
 
         let _ = endpoint.query(&client);

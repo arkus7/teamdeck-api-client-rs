@@ -1,9 +1,9 @@
 use async_trait::async_trait;
+use derive_builder::Builder;
 use httptest::{Expectation, ServerHandle, ServerPool};
 use reqwest::blocking::Client as BlockingClient;
 use thiserror::Error;
 use url::Url;
-use derive_builder::Builder;
 
 pub use httptest::matchers;
 pub use httptest::responders;
@@ -30,12 +30,12 @@ impl<'a> TestClient<'a> {
     }
 
     pub(crate) fn expect_request(&self, req: ExpectedRequest) -> &Self {
-      self.server.expect(req.into());
-      self
-  }
+        self.server.expect(req.into());
+        self
+    }
 
     pub(crate) fn url_str(&self, path: &str) -> String {
-      self.server.url_str(&format!("/{}", path))
+        self.server.url_str(&format!("/{}", path))
     }
 
     pub(crate) fn assert_expectations(mut self) {
@@ -44,7 +44,7 @@ impl<'a> TestClient<'a> {
 }
 
 #[derive(Builder, Debug)]
-pub(crate) struct ExpectedRequest{
+pub(crate) struct ExpectedRequest {
     method: &'static str,
     path: &'static str,
     respond_with_status: u16,
@@ -59,13 +59,13 @@ pub(crate) struct ExpectedRequest{
     #[builder(default, setter(strip_option, into))]
     response_headers: Option<Vec<(String, String)>>,
     #[builder(default, setter(strip_option, into))]
-    times: Option<usize>
+    times: Option<usize>,
 }
 
 impl ExpectedRequest {
-  pub(crate) fn builder() -> ExpectedRequestBuilder {
-    ExpectedRequestBuilder::default()
-  }
+    pub(crate) fn builder() -> ExpectedRequestBuilder {
+        ExpectedRequestBuilder::default()
+    }
 }
 
 impl From<ExpectedRequest> for Expectation {
@@ -78,7 +78,7 @@ impl From<ExpectedRequest> for Expectation {
             expect
                 .request_body
                 .map(|body| serde_json::to_string(&body).unwrap())
-                .unwrap_or_default()
+                .unwrap_or_default(),
         );
 
         let matcher = matchers::all_of![
@@ -89,13 +89,13 @@ impl From<ExpectedRequest> for Expectation {
         ];
 
         let response_headers = expect.response_headers.unwrap_or_default();
-        
+
         let mut responder = responders::status_code(expect.respond_with_status);
         for (key, value) in response_headers {
             responder = responder.append_header(key, value);
         }
         if let Some(body) = expect.response_body {
-          responder = responder.body(Box::leak(body.to_string().into_boxed_str()));
+            responder = responder.body(Box::leak(body.to_string().into_boxed_str()));
         }
 
         let exectation = Expectation::matching(matcher);

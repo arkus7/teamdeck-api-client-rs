@@ -64,7 +64,7 @@ where
     C: Client,
 {
     fn query(&self, client: &C) -> Result<Vec<T>, super::ApiError<<C>::Error>> {
-        let mut page_num = 1;
+        let mut page_num = 0;
         let mut results = vec![];
 
         let url = {
@@ -238,7 +238,7 @@ mod tests {
         let expected = ExpectedRequest::builder()
             .method(Method::GET)
             .path("/paged_dummy")
-            .query("page=1")
+            .query("page=0")
             .response_body("not json")
             .build()
             .unwrap();
@@ -262,7 +262,7 @@ mod tests {
         let expected = ExpectedRequest::builder()
             .method(Method::GET)
             .path("/paged_dummy")
-            .query("page=1")
+            .query("page=0")
             .response_status(StatusCode::NOT_FOUND)
             .response_body("")
             .build()
@@ -286,7 +286,7 @@ mod tests {
         let expected = ExpectedRequest::builder()
             .method(Method::GET)
             .path("/paged_dummy")
-            .query("page=1")
+            .query("page=0")
             .response_status(StatusCode::NOT_FOUND)
             .response_body(
                 json!({
@@ -315,7 +315,7 @@ mod tests {
         let expected = ExpectedRequest::builder()
             .method(Method::GET)
             .path("/paged_dummy")
-            .query("page=1")
+            .query("page=0")
             .response_status(StatusCode::NOT_FOUND)
             .response_body(
                 json!({
@@ -348,7 +348,7 @@ mod tests {
         let expected = ExpectedRequest::builder()
             .method(Method::GET)
             .path("/paged_dummy")
-            .query("page=1")
+            .query("page=0")
             .response_status(StatusCode::NOT_FOUND)
             .response_body(err_obj.to_string())
             .build()
@@ -365,57 +365,78 @@ mod tests {
         }
     }
 
-    /*
     #[test]
     fn test_pagination_all() {
-        let endpoint = ExpectedUrl::builder()
-            .endpoint("paged_dummy")
-            .paginated(true)
-            .build()
-            .unwrap();
+        let results = (0..=255).map(|value| {
+            DummyResult {
+                value,
+            }
+        }).collect::<Vec<_>>();
 
-        let client = PagedTestClient::new_raw(
-            endpoint,
-            (0..=255).map(|value| {
-                DummyResult {
-                    value,
-                }
-            }),
-        );
+        let pages: Vec<_> = results.chunks(10).collect();
+
+        assert_eq!(pages.len(), 26);
+
+        let expected_requests = pages.iter().enumerate().map(|(i, page)| {
+            ExpectedRequest::builder()
+                .method(Method::GET)
+                .path("/paged_dummy")
+                .query(&format!("page={}", i))
+                .response_body(json!(page).to_string())
+                .build()
+                .unwrap()
+        });
+
+        let client = TestClient::without_expectations();
+        for expected in expected_requests {
+            client.expect(expected);
+        }
+
         let query = Dummy::default();
 
         let res: Vec<DummyResult> = api::paged(query, Pagination::All).query(&client).unwrap();
         assert_eq!(res.len(), 256);
+
         for (i, value) in res.iter().enumerate() {
             assert_eq!(value.value, i as u8);
         }
     }
 
     #[tokio::test]
+    #[ignore = "Throws error 'Cannot drop a runtime in a context where blocking is not allowed. This happens when a runtime is dropped from within an asynchronous context.'"]
     async fn test_pagination_all_async() {
-        let endpoint = ExpectedUrl::builder()
-            .endpoint("paged_dummy")
-            .paginated(true)
-            .build()
-            .unwrap();
-        let client = PagedTestClient::new_raw(
-            endpoint,
-            (0..=255).map(|value| {
-                DummyResult {
-                    value,
-                }
-            }),
-        );
-        let query = Dummy::default();
-
-        let res: Vec<DummyResult> = api::paged(query, Pagination::All)
-            .query_async(&client)
-            .await
-            .unwrap();
-        assert_eq!(res.len(), 256);
-        for (i, value) in res.iter().enumerate() {
-            assert_eq!(value.value, i as u8);
+      let results = (0..=255).map(|value| {
+        DummyResult {
+            value,
         }
+    }).collect::<Vec<_>>();
+
+    let pages: Vec<_> = results.chunks(10).collect();
+
+    assert_eq!(pages.len(), 26);
+
+    let expected_requests = pages.iter().enumerate().map(|(i, page)| {
+        ExpectedRequest::builder()
+            .method(Method::GET)
+            .path("/paged_dummy")
+            .query(&format!("page={}", i))
+            .response_body(json!(page).to_string())
+            .build()
+            .unwrap()
+    });
+
+    let client = TestClient::without_expectations();
+    for expected in expected_requests {
+        client.expect(expected);
     }
-    */
+
+    let query = Dummy::default();
+
+    let res: Vec<DummyResult> = api::paged(query, Pagination::All).query_async(&client).await.unwrap();
+    assert_eq!(res.len(), 256);
+
+    for (i, value) in res.iter().enumerate() {
+        assert_eq!(value.value, i as u8);
+    }
+    }
 }

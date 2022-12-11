@@ -62,7 +62,7 @@ pub(crate) struct ExpectedRequest {
     #[builder(default = "StatusCode::OK")]
     response_status: StatusCode,
     #[builder(default, setter(strip_option, into))]
-    query: Option<&'static str>,
+    query: Option<String>,
     // #[builder(default, setter(strip_option, into))]
     // request_headers: Option<Vec<(String, String)>>,
     #[builder(default, setter(strip_option, into))]
@@ -83,8 +83,7 @@ impl ExpectedRequest {
 
 impl From<ExpectedRequest> for Expectation {
     fn from(expect: ExpectedRequest) -> Self {
-        let method: &'static str = Box::leak(expect.method.to_string().into_boxed_str());
-        let method_matcher = matchers::request::method(method);
+        let method_matcher = matchers::request::method(expect.method.to_string());
         let path_matcher = matchers::request::path(expect.path);
 
         let query_matcher = matchers::request::query(expect.query.unwrap_or_default());

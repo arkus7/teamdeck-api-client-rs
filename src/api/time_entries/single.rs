@@ -1,28 +1,28 @@
-use std::borrow::Cow;
-
 use derive_builder::Builder;
 use http::Method;
+use params::QueryParams;
+use std::borrow::Cow;
 
-use crate::api::{Endpoint, QueryParams};
+use crate::api::{params, Endpoint};
 
-use super::bookings::BookingsExpand;
+use super::many::TimeEntriesExpand;
 
 #[derive(Debug, Builder)]
-pub struct Booking {
+pub struct TimeEntry {
     id: usize,
     #[builder(default)]
-    expand: Option<BookingsExpand>,
+    expand: Option<TimeEntriesExpand>,
 }
 
-impl Booking {
-    pub fn builder() -> BookingBuilder {
-        BookingBuilder::default()
+impl TimeEntry {
+    pub fn builder() -> TimeEntryBuilder {
+        TimeEntryBuilder::default()
     }
 }
 
-impl Endpoint for Booking {
+impl Endpoint for TimeEntry {
     fn url(&self) -> Cow<'static, str> {
-        format!("bookings/{}", self.id).into()
+        format!("time-entries/{}", self.id).into()
     }
 
     fn method(&self) -> http::Method {
@@ -31,6 +31,7 @@ impl Endpoint for Booking {
 
     fn parameters(&self) -> QueryParams {
         let mut params = QueryParams::default();
+
         params.push_opt("expand", self.expand);
 
         params

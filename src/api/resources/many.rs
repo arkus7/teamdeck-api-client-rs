@@ -108,7 +108,7 @@ mod tests {
 
     use super::{Resources, ResourcesExpand};
     use crate::api::query::Query;
-    use crate::api::resources::resources::ResourcesSortBy;
+    use crate::api::resources::many::ResourcesSortBy;
     use crate::api::sort_by::SortBy;
     use crate::api::{self};
     use crate::test::client::{ExpectedRequest, TestClient};

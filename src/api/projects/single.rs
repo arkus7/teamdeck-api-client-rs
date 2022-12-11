@@ -3,7 +3,7 @@ use std::borrow::Cow;
 
 use crate::api::{Endpoint, QueryParams};
 
-use super::projects::ProjectsExpand;
+use super::many::ProjectsExpand;
 
 #[derive(Debug, Builder)]
 pub struct Project {

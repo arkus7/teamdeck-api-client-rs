@@ -3,7 +3,7 @@ use std::borrow::Cow;
 
 use crate::api::{Endpoint, QueryParams};
 
-use super::resources::ResourcesExpand;
+use super::many::ResourcesExpand;
 
 #[derive(Debug, Builder)]
 pub struct Resource {
@@ -41,7 +41,7 @@ mod tests {
 
     use super::Resource;
     use crate::{
-        api::{self, resources::resources::ResourcesExpand, Query},
+        api::{self, resources::many::ResourcesExpand, Query},
         test::client::{ExpectedRequest, TestClient},
     };
     #[test]

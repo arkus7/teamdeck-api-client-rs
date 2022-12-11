@@ -1,5 +1,5 @@
-mod project;
-mod projects;
+mod single;
+mod many;
 
-pub use project::{Project, ProjectBuilder, ProjectBuilderError};
-pub use projects::{Projects, ProjectsBuilder, ProjectsBuilderError, ProjectsSortBy};
+pub use single::{Project, ProjectBuilder, ProjectBuilderError};
+pub use many::{Projects, ProjectsBuilder, ProjectsBuilderError, ProjectsSortBy};

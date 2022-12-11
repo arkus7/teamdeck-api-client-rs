@@ -1,7 +1,7 @@
-mod booking;
-mod bookings;
+mod single;
+mod many;
 mod tags;
 
-pub use booking::{Booking, BookingBuilder, BookingBuilderError};
-pub use bookings::{Bookings, BookingsBuilder, BookingsBuilderError, BookingsSortBy};
+pub use single::{Booking, BookingBuilder, BookingBuilderError};
+pub use many::{Bookings, BookingsBuilder, BookingsBuilderError, BookingsSortBy};
 pub use tags::*;

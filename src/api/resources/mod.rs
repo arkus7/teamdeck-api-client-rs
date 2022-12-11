@@ -1,5 +1,5 @@
-mod resource;
-mod resources;
+mod single;
+mod many;
 
-pub use self::resource::{Resource, ResourceBuilder, ResourceBuilderError};
-pub use self::resources::{Resources, ResourcesBuilder, ResourcesBuilderError, ResourcesSortBy};
+pub use self::single::{Resource, ResourceBuilder, ResourceBuilderError};
+pub use self::many::{Resources, ResourcesBuilder, ResourcesBuilderError, ResourcesSortBy};

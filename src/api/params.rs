@@ -72,7 +72,10 @@ impl ParamValue<'static> for NaiveDate {
     }
 }
 
-impl<T> ParamValue<'static> for Vec<T> where T: ParamValue<'static> {
+impl<T> ParamValue<'static> for Vec<T>
+where
+    T: ParamValue<'static>,
+{
     fn as_value(&self) -> Cow<'static, str> {
         self.iter()
             .map(|v| v.as_value())

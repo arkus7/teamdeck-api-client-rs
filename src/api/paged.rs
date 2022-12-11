@@ -367,11 +367,9 @@ mod tests {
 
     #[test]
     fn test_pagination_all() {
-        let results = (0..=255).map(|value| {
-            DummyResult {
-                value,
-            }
-        }).collect::<Vec<_>>();
+        let results = (0..=255)
+            .map(|value| DummyResult { value })
+            .collect::<Vec<_>>();
 
         let pages: Vec<_> = results.chunks(10).collect();
 
@@ -405,38 +403,39 @@ mod tests {
     #[tokio::test]
     #[ignore = "Throws error 'Cannot drop a runtime in a context where blocking is not allowed. This happens when a runtime is dropped from within an asynchronous context.'"]
     async fn test_pagination_all_async() {
-      let results = (0..=255).map(|value| {
-        DummyResult {
-            value,
+        let results = (0..=255)
+            .map(|value| DummyResult { value })
+            .collect::<Vec<_>>();
+
+        let pages: Vec<_> = results.chunks(10).collect();
+
+        assert_eq!(pages.len(), 26);
+
+        let expected_requests = pages.iter().enumerate().map(|(i, page)| {
+            ExpectedRequest::builder()
+                .method(Method::GET)
+                .path("/paged_dummy")
+                .query(&format!("page={}", i))
+                .response_body(json!(page).to_string())
+                .build()
+                .unwrap()
+        });
+
+        let client = TestClient::without_expectations();
+        for expected in expected_requests {
+            client.expect(expected);
         }
-    }).collect::<Vec<_>>();
 
-    let pages: Vec<_> = results.chunks(10).collect();
+        let query = Dummy::default();
 
-    assert_eq!(pages.len(), 26);
+        let res: Vec<DummyResult> = api::paged(query, Pagination::All)
+            .query_async(&client)
+            .await
+            .unwrap();
+        assert_eq!(res.len(), 256);
 
-    let expected_requests = pages.iter().enumerate().map(|(i, page)| {
-        ExpectedRequest::builder()
-            .method(Method::GET)
-            .path("/paged_dummy")
-            .query(&format!("page={}", i))
-            .response_body(json!(page).to_string())
-            .build()
-            .unwrap()
-    });
-
-    let client = TestClient::without_expectations();
-    for expected in expected_requests {
-        client.expect(expected);
-    }
-
-    let query = Dummy::default();
-
-    let res: Vec<DummyResult> = api::paged(query, Pagination::All).query_async(&client).await.unwrap();
-    assert_eq!(res.len(), 256);
-
-    for (i, value) in res.iter().enumerate() {
-        assert_eq!(value.value, i as u8);
-    }
+        for (i, value) in res.iter().enumerate() {
+            assert_eq!(value.value, i as u8);
+        }
     }
 }

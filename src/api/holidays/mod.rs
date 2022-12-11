@@ -1,5 +1,5 @@
-mod single;
 mod many;
+mod single;
 
-pub use single::{Holiday, HolidayBuilder, HolidayBuilderError};
 pub use many::{Holidays, HolidaysBuilder, HolidaysBuilderError, HolidaysSortBy};
+pub use single::{Holiday, HolidayBuilder, HolidayBuilderError};

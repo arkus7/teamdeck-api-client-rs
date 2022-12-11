@@ -41,8 +41,8 @@ impl Endpoint for Booking {
 #[cfg(test)]
 mod tests {
     use super::Booking;
-    use crate::api::{self, Query};
     use crate::api::booking::many::BookingsExpand;
+    use crate::api::{self, Query};
     use crate::test::client::{ExpectedRequest, TestClient};
 
     #[test]

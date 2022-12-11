@@ -1,1 +1,1 @@
-pub(crate) mod client_v2;
+pub(crate) mod client;

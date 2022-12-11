@@ -42,7 +42,7 @@ mod tests {
     use super::Resource;
     use crate::{
         api::{self, resources::resources::ResourcesExpand, Query},
-        test::client_v2::{ExpectedRequest, TestClient},
+        test::client::{ExpectedRequest, TestClient},
     };
     #[test]
     fn resource() {

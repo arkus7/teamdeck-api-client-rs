@@ -206,7 +206,7 @@ mod tests {
 
     use crate::{
         api::{self, ApiError, AsyncQuery, Endpoint, Query},
-        test::client_v2::{ExpectedRequest, TestClient},
+        test::client::{ExpectedRequest, TestClient},
     };
 
     use super::{Pageable, Pagination};

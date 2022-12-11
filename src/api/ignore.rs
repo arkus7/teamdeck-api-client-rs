@@ -80,7 +80,7 @@ mod tests {
 
     use crate::api::endpoint::Endpoint;
     use crate::api::{self, ApiError, AsyncQuery, Query};
-    use crate::test::client_v2::{ExpectedRequest, TestClient};
+    use crate::test::client::{ExpectedRequest, TestClient};
 
     struct Dummy;
 

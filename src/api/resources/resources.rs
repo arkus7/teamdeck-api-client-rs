@@ -111,7 +111,7 @@ mod tests {
     use crate::api::resources::resources::ResourcesSortBy;
     use crate::api::sort_by::SortBy;
     use crate::api::{self};
-    use crate::test::client_v2::{ExpectedRequest, TestClient};
+    use crate::test::client::{ExpectedRequest, TestClient};
 
     #[test]
     fn sort_by_default() {

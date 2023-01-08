@@ -1,7 +1,7 @@
 use derive_builder::Builder;
 use std::borrow::Cow;
 
-use crate::api::{Endpoint};
+use crate::api::Endpoint;
 
 #[derive(Debug, Builder)]
 pub struct VacationReason {

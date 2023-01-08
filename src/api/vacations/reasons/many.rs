@@ -208,12 +208,7 @@ mod tests {
 
     #[test]
     fn endpoint_archived() {
-        let endpoint = api::ignore(
-            VacationReasons::builder()
-                .archived(true)
-                .build()
-                .unwrap(),
-        );
+        let endpoint = api::ignore(VacationReasons::builder().archived(true).build().unwrap());
         let expected = ExpectedRequest::builder()
             .method(Method::GET)
             .path("/vacation-reasons")

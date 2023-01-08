@@ -2,6 +2,13 @@ use std::{any, error::Error};
 
 use thiserror::Error;
 
+#[derive(Debug, Error)]
+#[non_exhaustive]
+pub enum BodyError {
+    #[error("failed to serialize body to JSON: {}", source)]
+    Json { source: serde_json::Error },
+}
+
 /// Errors which may occur when using API endpoints.
 #[derive(Debug, Error)]
 #[non_exhaustive]
@@ -21,6 +28,13 @@ where
         /// The source of the error.
         #[from]
         source: url::ParseError,
+    },
+    /// Body data could not be created.
+    #[error("failed to create form data: {}", source)]
+    Body {
+        /// The source of the error.
+        #[from]
+        source: BodyError,
     },
     /// JSON deserialization from Teamdeck failed.
     #[error("could not parse JSON response: {}", source)]

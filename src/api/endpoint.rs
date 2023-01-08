@@ -6,14 +6,15 @@ use http::{HeaderMap, Method, Request};
 use serde::de::DeserializeOwned;
 use url::Url;
 
+use super::error::BodyError;
 use super::{client::Client, error::ApiError, params::QueryParams, query::Query};
 use super::{AsyncClient, AsyncQuery};
 
 pub trait Endpoint {
     fn url(&self) -> Cow<'static, str>;
     fn method(&self) -> Method;
-    fn body(&self) -> Option<Vec<u8>> {
-        None
+    fn body(&self) -> Result<Option<Vec<u8>>, BodyError> {
+        Ok(None)
     }
     fn headers(&self) -> Option<HeaderMap> {
         None
@@ -38,7 +39,7 @@ where
             .header("Accept", "application/json")
             .header("Content-Type", "application/json");
 
-        let body = self.body().unwrap_or_default();
+        let body = self.body()?.unwrap_or_default();
 
         let response = client.rest(request, body)?;
         let status = response.status();
@@ -72,7 +73,7 @@ where
             .header("Accept", "application/json")
             .header("Content-Type", "application/json");
 
-        let body = self.body().unwrap_or_default();
+        let body = self.body()?.unwrap_or_default();
 
         let response = client.rest_async(request, body).await?;
         let status = response.status();

@@ -92,7 +92,7 @@ where
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json");
 
-            let body = self.endpoint.body().unwrap_or_default();
+            let body = self.endpoint.body()?.unwrap_or_default();
 
             let response = client.rest(request, body)?;
             let status = response.status();
@@ -163,7 +163,7 @@ where
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json");
 
-            let body = self.endpoint.body().unwrap_or_default();
+            let body = self.endpoint.body()?.unwrap_or_default();
 
             let response = client.rest_async(request, body).await?;
             let status = response.status();

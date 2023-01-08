@@ -28,7 +28,7 @@ where
         let req = Request::builder()
             .method(self.endpoint.method())
             .uri(endpoint::url_to_http_uri(url));
-        let data = self.endpoint.body().unwrap_or_default();
+        let data = self.endpoint.body()?.unwrap_or_default();
         let rsp = client.rest(req, data)?;
         if !rsp.status().is_success() {
             let v = if let Ok(v) = serde_json::from_slice(rsp.body()) {
@@ -56,7 +56,7 @@ where
         let req = Request::builder()
             .method(self.endpoint.method())
             .uri(endpoint::url_to_http_uri(url));
-        let data = self.endpoint.body().unwrap_or_default();
+        let data = self.endpoint.body()?.unwrap_or_default();
         let rsp = client.rest_async(req, data).await?;
         if !rsp.status().is_success() {
             let v = if let Ok(v) = serde_json::from_slice(rsp.body()) {

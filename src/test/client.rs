@@ -1,7 +1,6 @@
 use async_trait::async_trait;
 use derive_builder::Builder;
 use http::{Method, StatusCode};
-use httptest::Server;
 use httptest::{Expectation, ServerHandle, ServerPool};
 use reqwest::blocking::Client as BlockingClient;
 use thiserror::Error;
@@ -122,7 +121,11 @@ impl From<ExpectedRequest> for Expectation {
 
 #[derive(Debug, Error)]
 #[error("test client error")]
-pub enum TestClientError {}
+pub enum TestClientError {
+    NoMatchingExpectation,
+}
+
+const NO_MATCHER_FOUND_MSG: &'static str = "No matcher found";
 
 impl<'a> RestClient for TestClient<'a> {
     type Error = TestClientError;
@@ -151,7 +154,17 @@ impl<'a> Client for TestClient<'a> {
             headers.insert(key, value.clone());
         }
 
-        Ok(http_rsp.body(rsp.bytes().unwrap()).unwrap())
+        let rsp_status = rsp.status();
+        let rsp_bytes = rsp.bytes().unwrap();
+
+        if rsp_status.is_server_error() {
+            let response = std::str::from_utf8(&rsp_bytes).unwrap();
+            if response.contains(NO_MATCHER_FOUND_MSG) {
+                return Err(ApiError::client(TestClientError::NoMatchingExpectation));
+            }
+        }
+
+        Ok(http_rsp.body(rsp_bytes).unwrap())
     }
 }
 

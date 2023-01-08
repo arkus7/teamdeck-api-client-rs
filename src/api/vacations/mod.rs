@@ -1,5 +1,6 @@
 mod many;
 mod periods;
+mod reasons;
 mod single;
 
 pub use many::{Vacations, VacationsBuilder, VacationsBuilderError, VacationsSortBy};

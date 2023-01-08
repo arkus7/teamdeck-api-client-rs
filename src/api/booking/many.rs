@@ -121,4 +121,155 @@ impl<'a> Endpoint for Bookings<'a> {
 
 impl<'a> Pageable for Bookings<'a> {}
 
-// TODO: add tests
+#[cfg(test)]
+mod tests {
+    use chrono::NaiveDate;
+    use http::Method;
+
+    use super::*;
+    use crate::{
+        api::{self, ignore, sort_by::SortBy, Query},
+        test::client::{ExpectedRequest, TestClient},
+    };
+
+    #[test]
+    fn bookings_default_is_enough() {
+        Bookings::builder().build().unwrap();
+    }
+
+    #[test]
+    fn bookings_endpoint() {
+        let endpoint = ignore(Bookings::builder().build().unwrap());
+
+        let expected = ExpectedRequest::builder()
+            .method(Method::GET)
+            .path("/bookings")
+            .build()
+            .unwrap();
+
+        let client = TestClient::expecting(expected);
+
+        endpoint.query(&client).unwrap();
+    }
+
+    #[test]
+    fn bookings_sort_ascending() {
+        let endpoint = ignore(
+            Bookings::builder()
+                .sort(SortBy::Asc(BookingsSortBy::StartDate))
+                .build()
+                .unwrap(),
+        );
+
+        let expected = ExpectedRequest::builder()
+            .method(Method::GET)
+            .path("/bookings")
+            .query("sort=start_date")
+            .build()
+            .unwrap();
+
+        let client = TestClient::expecting(expected);
+
+        endpoint.query(&client).unwrap();
+    }
+
+    #[test]
+    fn bookings_sort_descending() {
+        let endpoint = ignore(
+            Bookings::builder()
+                .sort(SortBy::Desc(BookingsSortBy::StartDate))
+                .build()
+                .unwrap(),
+        );
+
+        let expected = ExpectedRequest::builder()
+            .method(Method::GET)
+            .path("/bookings")
+            .query("sort=-start_date")
+            .build()
+            .unwrap();
+
+        let client = TestClient::expecting(expected);
+
+        endpoint.query(&client).unwrap();
+    }
+
+    #[test]
+    fn default_sort_by_is_start_date() {
+        let endpoint = ignore(
+            Bookings::builder()
+                .sort(SortBy::Asc(Default::default()))
+                .build()
+                .unwrap(),
+        );
+
+        let expected = ExpectedRequest::builder()
+            .method(Method::GET)
+            .path("/bookings")
+            .query("sort=start_date")
+            .build()
+            .unwrap();
+
+        let client = TestClient::expecting(expected);
+
+        endpoint.query(&client).unwrap();
+    }
+
+    #[test]
+    fn bookings_expand() {
+        let endpoint = ignore(
+            Bookings::builder()
+                .expand(BookingsExpand::Tags)
+                .build()
+                .unwrap(),
+        );
+
+        let expected = ExpectedRequest::builder()
+            .method(Method::GET)
+            .path("/bookings")
+            .query("expand=tags")
+            .build()
+            .unwrap();
+
+        let client = TestClient::expecting(expected);
+
+        endpoint.query(&client).unwrap();
+    }
+
+    #[test]
+    fn endpoint_page() {
+        let endpoint = api::ignore(Bookings::builder().page(2).build().unwrap());
+
+        let expected = ExpectedRequest::builder()
+            .method(Method::GET)
+            .path("/bookings")
+            .query("page=2")
+            .build()
+            .unwrap();
+
+        let client = TestClient::expecting(expected);
+
+        endpoint.query(&client).unwrap();
+    }
+
+    #[test]
+    fn endpoint_date() {
+        let endpoint = api::ignore(
+            Bookings::builder()
+                .date(NaiveDate::from_ymd(2023, 1, 7))
+                .build()
+                .unwrap(),
+        );
+
+        let expected = ExpectedRequest::builder()
+            .method(Method::GET)
+            .path("/bookings")
+            .query("date=2023-01-07")
+            .build()
+            .unwrap();
+
+        let client = TestClient::expecting(expected);
+
+        endpoint.query(&client).unwrap();
+    }
+}

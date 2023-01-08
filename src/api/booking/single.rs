@@ -37,13 +37,16 @@ impl Endpoint for Booking {
     }
 }
 
-// TODO: Add tests
 #[cfg(test)]
 mod tests {
-    use super::Booking;
-    use crate::api::booking::many::BookingsExpand;
+    use super::*;
     use crate::api::{self, Query};
     use crate::test::client::{ExpectedRequest, TestClient};
+
+    #[test]
+    fn booking_id_is_required() {
+        assert!(Booking::builder().build().is_err());
+    }
 
     #[test]
     fn booking() {

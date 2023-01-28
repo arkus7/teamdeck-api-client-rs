@@ -127,9 +127,12 @@ mod tests {
             .build()
             .unwrap();
 
-        let client = TestClient::expecting(expected);
+        let client = TestClient::new();
+        let mock = client.expect(expected);
 
         endpoint.query(&client).unwrap();
+
+        mock.assert();
     }
 
     #[test]
@@ -144,13 +147,16 @@ mod tests {
         let expected = ExpectedRequest::builder()
             .method(Method::GET)
             .path("/vacation-reasons")
-            .query("sort=name")
+            .query(vec![("sort".into(), "name".into())])
             .build()
             .unwrap();
 
-        let client = TestClient::expecting(expected);
+        let client = TestClient::new();
+        let mock = client.expect(expected);
 
         endpoint.query(&client).unwrap();
+
+        mock.assert();
     }
 
     #[test]
@@ -165,13 +171,16 @@ mod tests {
         let expected = ExpectedRequest::builder()
             .method(Method::GET)
             .path("/vacation-reasons")
-            .query("sort=-name")
+            .query(vec![("sort".into(), "-name".into())])
             .build()
             .unwrap();
 
-        let client = TestClient::expecting(expected);
+        let client = TestClient::new();
+        let mock = client.expect(expected);
 
         endpoint.query(&client).unwrap();
+
+        mock.assert();
     }
 
     #[test]
@@ -181,13 +190,16 @@ mod tests {
         let expected = ExpectedRequest::builder()
             .method(Method::GET)
             .path("/vacation-reasons")
-            .query("page=2")
+            .query(vec![("page".into(), "2".into())])
             .build()
             .unwrap();
 
-        let client = TestClient::expecting(expected);
+        let client = TestClient::new();
+        let mock = client.expect(expected);
 
         endpoint.query(&client).unwrap();
+
+        mock.assert();
     }
 
     #[test]
@@ -197,13 +209,16 @@ mod tests {
         let expected = ExpectedRequest::builder()
             .method(Method::GET)
             .path("/vacation-reasons")
-            .query("name=test")
+            .query(vec![("name".into(), "test".into())])
             .build()
             .unwrap();
 
-        let client = TestClient::expecting(expected);
+        let client = TestClient::new();
+        let mock = client.expect(expected);
 
         endpoint.query(&client).unwrap();
+
+        mock.assert();
     }
 
     #[test]
@@ -212,14 +227,15 @@ mod tests {
         let expected = ExpectedRequest::builder()
             .method(Method::GET)
             .path("/vacation-reasons")
-            .query("archived=1")
+            .query(vec![("archived".into(), "1".into())])
             .build()
             .unwrap();
 
-        let client = TestClient::expecting(expected);
+        let client = TestClient::new();
+        let mock = client.expect(expected);
 
         endpoint.query(&client).unwrap();
 
-        client.assert_expectations();
+        mock.assert();
     }
 }

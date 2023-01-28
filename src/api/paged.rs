@@ -238,14 +238,17 @@ mod tests {
         let expected = ExpectedRequest::builder()
             .method(Method::GET)
             .path("/paged_dummy")
-            .query("page=0")
+            .query(vec![("page".into(), "0".into())])
             .response_body("not json")
             .build()
             .unwrap();
 
-        let client = TestClient::expecting(expected);
+        let client = TestClient::new();
+        let mock = client.expect(expected);
 
         let res: Result<Vec<DummyResult>, _> = endpoint.query(&client);
+
+        mock.assert();
 
         let err = res.unwrap_err();
         if let ApiError::TeamdeckService { status, .. } = err {
@@ -262,15 +265,19 @@ mod tests {
         let expected = ExpectedRequest::builder()
             .method(Method::GET)
             .path("/paged_dummy")
-            .query("page=0")
+            .query(vec![("page".into(), "0".into())])
             .response_status(StatusCode::NOT_FOUND)
             .response_body("")
             .build()
             .unwrap();
 
-        let client = TestClient::expecting(expected);
+        let client = TestClient::new();
+        let mock = client.expect(expected);
 
         let res: Result<Vec<DummyResult>, _> = api::paged(endpoint, Pagination::All).query(&client);
+
+        mock.assert();
+
         let err = res.unwrap_err();
         if let ApiError::TeamdeckService { status, .. } = err {
             assert_eq!(status, http::StatusCode::NOT_FOUND);
@@ -286,7 +293,7 @@ mod tests {
         let expected = ExpectedRequest::builder()
             .method(Method::GET)
             .path("/paged_dummy")
-            .query("page=0")
+            .query(vec![("page".into(), "0".into())])
             .response_status(StatusCode::NOT_FOUND)
             .response_body(
                 json!({
@@ -297,9 +304,13 @@ mod tests {
             .build()
             .unwrap();
 
-        let client = TestClient::expecting(expected);
+        let client = TestClient::new();
+        let mock = client.expect(expected);
 
         let res: Result<Vec<DummyResult>, _> = api::paged(endpoint, Pagination::All).query(&client);
+
+        mock.assert();
+
         let err = res.unwrap_err();
         if let ApiError::Teamdeck { msg } = err {
             assert_eq!(msg, "dummy error message");
@@ -315,7 +326,7 @@ mod tests {
         let expected = ExpectedRequest::builder()
             .method(Method::GET)
             .path("/paged_dummy")
-            .query("page=0")
+            .query(vec![("page".into(), "0".into())])
             .response_status(StatusCode::NOT_FOUND)
             .response_body(
                 json!({
@@ -326,9 +337,13 @@ mod tests {
             .build()
             .unwrap();
 
-        let client = TestClient::expecting(expected);
+        let client = TestClient::new();
+        let mock = client.expect(expected);
 
         let res: Result<Vec<DummyResult>, _> = api::paged(endpoint, Pagination::All).query(&client);
+
+        mock.assert();
+
         let err = res.unwrap_err();
         if let ApiError::Teamdeck { msg } = err {
             assert_eq!(msg, "dummy error message");
@@ -348,15 +363,19 @@ mod tests {
         let expected = ExpectedRequest::builder()
             .method(Method::GET)
             .path("/paged_dummy")
-            .query("page=0")
+            .query(vec![("page".into(), "0".into())])
             .response_status(StatusCode::NOT_FOUND)
             .response_body(err_obj.to_string())
             .build()
             .unwrap();
 
-        let client = TestClient::expecting(expected);
+        let client = TestClient::new();
+        let mock = client.expect(expected);
 
         let res: Result<Vec<DummyResult>, _> = api::paged(endpoint, Pagination::All).query(&client);
+
+        mock.assert();
+
         let err = res.unwrap_err();
         if let ApiError::TeamdeckUnrecognized { obj } = err {
             assert_eq!(obj, err_obj);
@@ -379,20 +398,26 @@ mod tests {
             ExpectedRequest::builder()
                 .method(Method::GET)
                 .path("/paged_dummy")
-                .query(&format!("page={}", i))
+                .query(vec![("page".into(), i.to_string())])
                 .response_body(json!(page).to_string())
                 .build()
                 .unwrap()
         });
 
-        let client = TestClient::without_expectations();
-        for expected in expected_requests {
-            client.expect(expected);
-        }
+        let client = TestClient::new();
+
+        let mocks = expected_requests
+            .map(|expected| client.expect(expected))
+            .collect::<Vec<_>>();
 
         let query = Dummy::default();
 
         let res: Vec<DummyResult> = api::paged(query, Pagination::All).query(&client).unwrap();
+
+        for mock in mocks {
+            mock.assert();
+        }
+
         assert_eq!(res.len(), 256);
 
         for (i, value) in res.iter().enumerate() {
@@ -415,16 +440,17 @@ mod tests {
             ExpectedRequest::builder()
                 .method(Method::GET)
                 .path("/paged_dummy")
-                .query(&format!("page={}", i))
+                .query(vec![("page".into(), i.to_string())])
                 .response_body(json!(page).to_string())
                 .build()
                 .unwrap()
         });
 
-        let client = TestClient::without_expectations();
-        for expected in expected_requests {
-            client.expect(expected);
-        }
+        let client = TestClient::new();
+
+        let mocks = expected_requests
+            .map(|expected| client.expect(expected))
+            .collect::<Vec<_>>();
 
         let query = Dummy::default();
 
@@ -432,6 +458,11 @@ mod tests {
             .query_async(&client)
             .await
             .unwrap();
+
+        for mock in mocks {
+            mock.assert();
+        }
+        
         assert_eq!(res.len(), 256);
 
         for (i, value) in res.iter().enumerate() {

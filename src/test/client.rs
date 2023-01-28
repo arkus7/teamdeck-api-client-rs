@@ -1,9 +1,7 @@
-use std::pin::Pin;
-
 use async_trait::async_trait;
 use derive_builder::Builder;
 use http::{Method, StatusCode};
-use httpmock::{Mock, MockServer, Then, When};
+use httpmock::{Mock, MockServer};
 use reqwest::blocking::Client as BlockingClient;
 use thiserror::Error;
 use url::Url;
@@ -32,20 +30,20 @@ impl TestClient {
 
             if let Some(headers) = req.request_headers {
                 for (key, value) in headers {
-                    request = request.header(key.to_owned(), value.to_owned());
+                    request = request.header(key, value);
                 }
             }
 
             if let Some(query) = req.query {
                 for (key, value) in query {
-                    request = request.query_param(key.to_owned(), value.to_owned());
+                    request = request.query_param(key, value);
                 }
             }
 
             let mut response = then.status(req.response_status.as_u16());
             if let Some(headers) = req.response_headers {
                 for (key, value) in headers {
-                    response = response.header(key.to_owned(), value.to_owned());
+                    response = response.header(key, value);
                 }
             }
             if let Some(body) = req.response_body {

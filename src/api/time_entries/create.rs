@@ -1,9 +1,7 @@
 use chrono::NaiveDate;
 use derive_builder::Builder;
 use http::Method;
-use params::{ParamValue, QueryParams};
-use serde::Serialize;
-use serde_json::json;
+use params::ParamValue;
 use std::borrow::Cow;
 
 use crate::api::{
@@ -75,7 +73,7 @@ impl<'a> Endpoint for CreateTimeEntry<'a> {
 mod tests {
     use super::*;
     use crate::{
-        api::{self, params::JsonParams, Query},
+        api::{self, Query},
         test::client::{ExpectedRequest, TestClient},
     };
     use chrono::NaiveDate;

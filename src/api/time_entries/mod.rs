@@ -3,6 +3,7 @@ mod many;
 mod single;
 mod tags;
 
+pub use create::{CreateTimeEntry, CreateTimeEntryBuilder, CreateTimeEntryBuilderError};
 pub use many::{
     TimeEntries, TimeEntriesBuilder, TimeEntriesBuilderError, TimeEntriesExpand, TimeEntriesSortBy,
 };

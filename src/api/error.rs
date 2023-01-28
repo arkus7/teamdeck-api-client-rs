@@ -6,7 +6,10 @@ use thiserror::Error;
 #[non_exhaustive]
 pub enum BodyError {
     #[error("failed to serialize body to JSON: {}", source)]
-    Json { source: serde_json::Error },
+    Json {
+        #[from]
+        source: serde_json::Error,
+    },
 }
 
 /// Errors which may occur when using API endpoints.

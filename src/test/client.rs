@@ -1,55 +1,63 @@
+use std::pin::Pin;
+
 use async_trait::async_trait;
 use derive_builder::Builder;
 use http::{Method, StatusCode};
-use httptest::{Expectation, ServerHandle, ServerPool};
+use httpmock::{Mock, MockServer, Then, When};
 use reqwest::blocking::Client as BlockingClient;
 use thiserror::Error;
 use url::Url;
 
-pub use httptest::matchers;
-pub use httptest::responders;
-
-// Create a server pool that will create at most 3 servers.
-static SERVER_POOL: ServerPool = ServerPool::new(3);
-
 use crate::api::{self, ApiError, AsyncClient, Client, RestClient};
-pub(crate) struct TestClient<'a> {
-    server: ServerHandle<'a>,
+pub(crate) struct TestClient {
+    server: MockServer,
     client: BlockingClient,
 }
 
-impl<'a> TestClient<'a> {
-    pub(crate) fn expecting(req: ExpectedRequest) -> Self {
-        let client = Self::new();
-        client.expect(req);
-        client
-    }
-
-    pub(crate) fn without_expectations() -> Self {
-        Self::new()
-    }
-
-    fn new() -> Self {
-        let server = SERVER_POOL.get_server();
+impl TestClient {
+    pub(crate) fn new() -> Self {
+        let server = MockServer::start();
         let client = BlockingClient::new();
         Self { server, client }
     }
 
-    pub(crate) fn add_expectation(&self, expectation: Expectation) -> &Self {
-        self.server.expect(expectation);
-        self
-    }
+    #[must_use = "The mock must be asserted to ensure the request was made"]
+    pub(crate) fn expect(&self, req: ExpectedRequest) -> Mock {
+        let mock: Mock = self.server.mock(|when, then| {
+            let mut request = when.method(req.method.as_str()).path(req.path);
 
-    pub(crate) fn expect(&self, req: ExpectedRequest) -> &Self {
-        self.add_expectation(req.into())
+            if let Some(body) = req.request_body {
+                request = request.json_body(body);
+            }
+
+            if let Some(headers) = req.request_headers {
+                for (key, value) in headers {
+                    request = request.header(key.to_owned(), value.to_owned());
+                }
+            }
+
+            if let Some(query) = req.query {
+                for (key, value) in query {
+                    request = request.query_param(key.to_owned(), value.to_owned());
+                }
+            }
+
+            let mut response = then.status(req.response_status.as_u16());
+            if let Some(headers) = req.response_headers {
+                for (key, value) in headers {
+                    response = response.header(key.to_owned(), value.to_owned());
+                }
+            }
+            if let Some(body) = req.response_body {
+                response = response.body(body);
+            }
+        });
+
+        mock
     }
 
     pub(crate) fn url_str(&self, path: &str) -> String {
-        self.server.url_str(&format!("/{}", path))
-    }
-
-    pub(crate) fn assert_expectations(mut self) {
-        self.server.verify_and_clear();
+        self.server.url(&format!("/{}", path))
     }
 }
 
@@ -60,62 +68,21 @@ pub(crate) struct ExpectedRequest {
     path: &'static str,
     #[builder(default = "StatusCode::OK")]
     response_status: StatusCode,
-    #[builder(default, setter(strip_option, into))]
-    query: Option<String>,
-    // #[builder(default, setter(strip_option, into))]
-    // request_headers: Option<Vec<(String, String)>>,
+    #[builder(default, setter(strip_option))]
+    query: Option<Vec<(String, String)>>,
+    #[builder(default, setter(strip_option))]
+    request_headers: Option<Vec<(String, String)>>,
     #[builder(default, setter(strip_option, into))]
     request_body: Option<serde_json::Value>,
     #[builder(default, setter(strip_option, into))]
     response_body: Option<String>,
-    #[builder(default, setter(strip_option, into))]
+    #[builder(default, setter(strip_option))]
     response_headers: Option<Vec<(String, String)>>,
-    #[builder(default, setter(strip_option, into))]
-    times: Option<usize>,
 }
 
 impl ExpectedRequest {
     pub(crate) fn builder() -> ExpectedRequestBuilder {
         ExpectedRequestBuilder::default()
-    }
-}
-
-impl From<ExpectedRequest> for Expectation {
-    fn from(expect: ExpectedRequest) -> Self {
-        let method_matcher = matchers::request::method(expect.method.to_string());
-        let path_matcher = matchers::request::path(expect.path);
-
-        let query_matcher = matchers::request::query(expect.query.unwrap_or_default());
-        let request_body_matcher = matchers::request::body(
-            expect
-                .request_body
-                .map(|body| serde_json::to_string(&body).unwrap())
-                .unwrap_or_default(),
-        );
-
-        let matcher = matchers::all_of![
-            method_matcher,
-            path_matcher,
-            query_matcher,
-            request_body_matcher
-        ];
-
-        let response_headers = expect.response_headers.unwrap_or_default();
-
-        let mut responder = responders::status_code(expect.response_status.as_u16());
-        for (key, value) in response_headers {
-            responder = responder.append_header(key, value);
-        }
-        if let Some(body) = expect.response_body {
-            responder = responder.body(Box::leak(body.to_string().into_boxed_str()));
-        }
-
-        let exectation = Expectation::matching(matcher);
-        if let Some(times) = expect.times {
-            exectation.times(times).respond_with(responder)
-        } else {
-            exectation.respond_with(responder)
-        }
     }
 }
 
@@ -127,7 +94,7 @@ pub enum TestClientError {
 
 const NO_MATCHER_FOUND_MSG: &'static str = "No matcher found";
 
-impl<'a> RestClient for TestClient<'a> {
+impl RestClient for TestClient {
     type Error = TestClientError;
 
     fn rest_endpoint(&self, endpoint: &str) -> Result<Url, ApiError<Self::Error>> {
@@ -135,7 +102,7 @@ impl<'a> RestClient for TestClient<'a> {
     }
 }
 
-impl<'a> Client for TestClient<'a> {
+impl Client for TestClient {
     fn rest(
         &self,
         request: http::request::Builder,
@@ -169,7 +136,7 @@ impl<'a> Client for TestClient<'a> {
 }
 
 #[async_trait]
-impl<'a> AsyncClient for TestClient<'a> {
+impl AsyncClient for TestClient {
     async fn rest_async(
         &self,
         request: http::request::Builder,

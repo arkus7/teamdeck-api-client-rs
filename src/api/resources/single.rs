@@ -51,9 +51,12 @@ mod tests {
             .build()
             .unwrap();
 
-        let client = TestClient::expecting(expected);
+        let client = TestClient::new();
+        let mock = client.expect(expected);
 
         endpoint.query(&client).unwrap();
+
+        mock.assert();
     }
 
     #[test]
@@ -68,12 +71,15 @@ mod tests {
 
         let expected = ExpectedRequest::builder()
             .path("/resources/1")
-            .query("expand=custom_field_values")
+            .query(vec![("expand".into(), "custom_field_values".into())])
             .build()
             .unwrap();
 
-        let client = TestClient::expecting(expected);
+        let client = TestClient::new();
+        let mock = client.expect(expected);
 
-        let _ = endpoint.query(&client);
+        endpoint.query(&client).unwrap();
+
+        mock.assert();
     }
 }

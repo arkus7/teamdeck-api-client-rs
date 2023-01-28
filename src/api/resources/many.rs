@@ -147,9 +147,12 @@ mod tests {
             .build()
             .unwrap();
 
-        let client = TestClient::expecting(expected);
+        let client = TestClient::new();
+        let mock = client.expect(expected);
 
         endpoint.query(&client).unwrap();
+
+        mock.assert();
     }
 
     #[test]
@@ -164,13 +167,16 @@ mod tests {
         let expected = ExpectedRequest::builder()
             .method(Method::GET)
             .path("/resources")
-            .query("sort=email")
+            .query(vec![("sort".into(), "email".into())])
             .build()
             .unwrap();
 
-        let client = TestClient::expecting(expected);
+        let client = TestClient::new();
+        let mock = client.expect(expected);
 
         endpoint.query(&client).unwrap();
+
+        mock.assert();
     }
 
     #[test]
@@ -185,13 +191,16 @@ mod tests {
         let expected = ExpectedRequest::builder()
             .method(Method::GET)
             .path("/resources")
-            .query("sort=-email")
+            .query(vec![("sort".into(), "-email".into())])
             .build()
             .unwrap();
 
-        let client = TestClient::expecting(expected);
+        let client = TestClient::new();
+        let mock = client.expect(expected);
 
         endpoint.query(&client).unwrap();
+
+        mock.assert();
     }
 
     #[test]
@@ -201,13 +210,16 @@ mod tests {
         let expected = ExpectedRequest::builder()
             .method(Method::GET)
             .path("/resources")
-            .query("active=1")
+            .query(vec![("active".into(), "1".into())])
             .build()
             .unwrap();
 
-        let client = TestClient::expecting(expected);
+        let client = TestClient::new();
+        let mock = client.expect(expected);
 
         endpoint.query(&client).unwrap();
+
+        mock.assert();
     }
 
     #[test]
@@ -217,13 +229,15 @@ mod tests {
         let expected = ExpectedRequest::builder()
             .method(Method::GET)
             .path("/resources")
-            .query("")
             .build()
             .unwrap();
 
-        let client = TestClient::expecting(expected);
+        let client = TestClient::new();
+        let mock = client.expect(expected);
 
         endpoint.query(&client).unwrap();
+
+        mock.assert();
     }
 
     #[test]
@@ -233,13 +247,16 @@ mod tests {
         let expected = ExpectedRequest::builder()
             .method(Method::GET)
             .path("/resources")
-            .query("active=0")
+            .query(vec![("active".into(), "0".into())])
             .build()
             .unwrap();
 
-        let client = TestClient::expecting(expected);
+        let client = TestClient::new();
+        let mock = client.expect(expected);
 
         endpoint.query(&client).unwrap();
+
+        mock.assert();
     }
 
     #[test]
@@ -249,13 +266,16 @@ mod tests {
         let expected = ExpectedRequest::builder()
             .method(Method::GET)
             .path("/resources")
-            .query("page=2")
+            .query(vec![("page".into(), "2".into())])
             .build()
             .unwrap();
 
-        let client = TestClient::expecting(expected);
+        let client = TestClient::new();
+        let mock = client.expect(expected);
 
         endpoint.query(&client).unwrap();
+
+        mock.assert();
     }
 
     #[test]
@@ -265,13 +285,16 @@ mod tests {
         let expected = ExpectedRequest::builder()
             .method(Method::GET)
             .path("/resources")
-            .query("name=test")
+            .query(vec![("name".into(), "test".into())])
             .build()
             .unwrap();
 
-        let client = TestClient::expecting(expected);
+        let client = TestClient::new();
+        let mock = client.expect(expected);
 
         endpoint.query(&client).unwrap();
+
+        mock.assert();
     }
 
     #[test]
@@ -280,15 +303,16 @@ mod tests {
         let expected = ExpectedRequest::builder()
             .method(Method::GET)
             .path("/resources")
-            .query("email=test%40test.com")
+            .query(vec![("email".into(), "test@test.com".into())])
             .build()
             .unwrap();
 
-        let client = TestClient::expecting(expected);
+        let client = TestClient::new();
+        let mock = client.expect(expected);
 
         endpoint.query(&client).unwrap();
 
-        client.assert_expectations();
+        mock.assert();
     }
 
     #[test]
@@ -303,14 +327,15 @@ mod tests {
         let expected = ExpectedRequest::builder()
             .method(Method::GET)
             .path("/resources")
-            .query("expand=custom_field_values")
+            .query(vec![("expand".into(), "custom_field_values".into())])
             .build()
             .unwrap();
 
-        let client = TestClient::expecting(expected);
+        let client = TestClient::new();
+        let mock = client.expect(expected);
 
         endpoint.query(&client).unwrap();
 
-        client.assert_expectations();
+        mock.assert();
     }
 }

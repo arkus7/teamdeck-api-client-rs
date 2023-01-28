@@ -123,6 +123,7 @@ mod tests {
             .unwrap();
 
         let client = TestClient::new();
+
         let mock = client.expect(expected);
 
         endpoint.query(&client).unwrap();

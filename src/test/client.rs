@@ -87,10 +87,7 @@ impl ExpectedRequest {
 #[derive(Debug, Error)]
 #[error("test client error")]
 pub enum TestClientError {
-    NoMatchingExpectation,
 }
-
-const NO_MATCHER_FOUND_MSG: &'static str = "No matcher found";
 
 impl RestClient for TestClient {
     type Error = TestClientError;
@@ -119,15 +116,7 @@ impl Client for TestClient {
             headers.insert(key, value.clone());
         }
 
-        let rsp_status = rsp.status();
         let rsp_bytes = rsp.bytes().unwrap();
-
-        if rsp_status.is_server_error() {
-            let response = std::str::from_utf8(&rsp_bytes).unwrap();
-            if response.contains(NO_MATCHER_FOUND_MSG) {
-                return Err(ApiError::client(TestClientError::NoMatchingExpectation));
-            }
-        }
 
         Ok(http_rsp.body(rsp_bytes).unwrap())
     }

@@ -1,6 +1,8 @@
-use std::borrow::Cow;
+use std::{borrow::Cow, collections::HashMap};
 
 use chrono::{DateTime, NaiveDate, Utc};
+use serde::Serialize;
+use serde_json::Value;
 use url::Url;
 
 pub trait ParamValue<'a> {
@@ -132,5 +134,75 @@ impl<'a> QueryParams<'a> {
     pub fn add_to_url(&self, url: &mut Url) {
         let mut pairs = url.query_pairs_mut();
         pairs.extend_pairs(self.params.iter());
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct JsonParams<'a> {
+    params: HashMap<Cow<'a, str>, Value>,
+}
+
+impl<'a> JsonParams<'a> {
+    pub fn push<'b, K, V>(&mut self, key: K, value: V) -> Result<&mut Self, serde_json::Error>
+    where
+        K: Into<Cow<'a, str>>,
+        V: Serialize,
+        'b: 'a,
+    {
+        self.params.insert(key.into(), serde_json::to_value(value)?);
+        Ok(self)
+    }
+
+    pub fn push_opt<'b, K, V>(
+        &mut self,
+        key: K,
+        value: Option<V>,
+    ) -> Result<&mut Self, serde_json::Error>
+    where
+        K: Into<Cow<'a, str>>,
+        V: Serialize,
+        'b: 'a,
+    {
+        if let Some(value) = value {
+            self.params.insert(key.into(), serde_json::to_value(value)?);
+        }
+        Ok(self)
+    }
+
+    pub fn push_param_value<'b, K, V>(
+        &mut self,
+        key: K,
+        value: V,
+    ) -> Result<&mut Self, serde_json::Error>
+    where
+        K: Into<Cow<'a, str>>,
+        V: ParamValue<'b>,
+        'b: 'a,
+    {
+        self.params
+            .insert(key.into(), serde_json::to_value(value.as_value())?);
+        Ok(self)
+    }
+
+    pub fn push_param_value_opt<'b, K, V>(
+        &mut self,
+        key: K,
+        value: Option<V>,
+    ) -> Result<&mut Self, serde_json::Error>
+    where
+        K: Into<Cow<'a, str>>,
+        V: ParamValue<'b>,
+        'b: 'a,
+    {
+        if let Some(value) = value {
+            self.params
+                .insert(key.into(), serde_json::to_value(value.as_value())?);
+        }
+        Ok(self)
+    }
+
+    pub fn to_body(&self) -> Result<Vec<u8>, serde_json::Error> {
+        dbg!(&self.params);
+        serde_json::to_vec(&self.params)
     }
 }

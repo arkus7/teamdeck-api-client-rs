@@ -462,7 +462,7 @@ mod tests {
         for mock in mocks {
             mock.assert();
         }
-        
+
         assert_eq!(res.len(), 256);
 
         for (i, value) in res.iter().enumerate() {

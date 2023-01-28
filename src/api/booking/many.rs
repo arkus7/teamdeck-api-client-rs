@@ -147,9 +147,12 @@ mod tests {
             .build()
             .unwrap();
 
-        let client = TestClient::expecting(expected);
+        let client = TestClient::new();
+        let mock = client.expect(expected);
 
         endpoint.query(&client).unwrap();
+
+        mock.assert();
     }
 
     #[test]
@@ -164,13 +167,16 @@ mod tests {
         let expected = ExpectedRequest::builder()
             .method(Method::GET)
             .path("/bookings")
-            .query("sort=start_date")
+            .query(vec![("sort".into(), "start_date".into())])
             .build()
             .unwrap();
 
-        let client = TestClient::expecting(expected);
+        let client = TestClient::new();
+        let mock = client.expect(expected);
 
         endpoint.query(&client).unwrap();
+
+        mock.assert();
     }
 
     #[test]
@@ -185,13 +191,16 @@ mod tests {
         let expected = ExpectedRequest::builder()
             .method(Method::GET)
             .path("/bookings")
-            .query("sort=-start_date")
+            .query(vec![("sort".into(), "-start_date".into())])
             .build()
             .unwrap();
 
-        let client = TestClient::expecting(expected);
+        let client = TestClient::new();
+        let mock = client.expect(expected);
 
         endpoint.query(&client).unwrap();
+
+        mock.assert();
     }
 
     #[test]
@@ -206,13 +215,16 @@ mod tests {
         let expected = ExpectedRequest::builder()
             .method(Method::GET)
             .path("/bookings")
-            .query("sort=start_date")
+            .query(vec![("sort".into(), "start_date".into())])
             .build()
             .unwrap();
 
-        let client = TestClient::expecting(expected);
+        let client = TestClient::new();
+        let mock = client.expect(expected);
 
         endpoint.query(&client).unwrap();
+
+        mock.assert();
     }
 
     #[test]
@@ -227,13 +239,16 @@ mod tests {
         let expected = ExpectedRequest::builder()
             .method(Method::GET)
             .path("/bookings")
-            .query("expand=tags")
+            .query(vec![("expand".into(), "tags".into())])
             .build()
             .unwrap();
 
-        let client = TestClient::expecting(expected);
+        let client = TestClient::new();
+        let mock = client.expect(expected);
 
         endpoint.query(&client).unwrap();
+
+        mock.assert();
     }
 
     #[test]
@@ -243,13 +258,16 @@ mod tests {
         let expected = ExpectedRequest::builder()
             .method(Method::GET)
             .path("/bookings")
-            .query("page=2")
+            .query(vec![("page".into(), "2".into())])
             .build()
             .unwrap();
 
-        let client = TestClient::expecting(expected);
+        let client = TestClient::new();
+        let mock = client.expect(expected);
 
         endpoint.query(&client).unwrap();
+
+        mock.assert();
     }
 
     #[test]
@@ -264,12 +282,15 @@ mod tests {
         let expected = ExpectedRequest::builder()
             .method(Method::GET)
             .path("/bookings")
-            .query("date=2023-01-07")
+            .query(vec![("date".into(), "2023-01-07".into())])
             .build()
             .unwrap();
 
-        let client = TestClient::expecting(expected);
+        let client = TestClient::new();
+        let mock = client.expect(expected);
 
         endpoint.query(&client).unwrap();
+
+        mock.assert();
     }
 }

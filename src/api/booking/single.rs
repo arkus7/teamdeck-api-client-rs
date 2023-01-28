@@ -57,9 +57,12 @@ mod tests {
             .build()
             .unwrap();
 
-        let client = TestClient::expecting(expected);
+        let client = TestClient::new();
+        let mock = client.expect(expected);
 
         endpoint.query(&client).unwrap();
+
+        mock.assert();
     }
 
     #[test]
@@ -74,12 +77,15 @@ mod tests {
 
         let expected = ExpectedRequest::builder()
             .path("/bookings/1")
-            .query("expand=tags")
+            .query(vec![("expand".into(), "tags".into())])
             .build()
             .unwrap();
 
-        let client = TestClient::expecting(expected);
+        let client = TestClient::new();
+        let mock = client.expect(expected);
 
         endpoint.query(&client).unwrap();
+
+        mock.assert();
     }
 }

@@ -33,11 +33,17 @@ where
     fn query(&self, client: &C) -> Result<T, ApiError<C::Error>> {
         let mut url = client.rest_endpoint(&self.url())?;
         self.parameters().add_to_url(&mut url);
-        let request = Request::builder()
+        let mut request = Request::builder()
             .method(self.method())
             .uri(url_to_http_uri(url))
             .header("Accept", "application/json")
             .header("Content-Type", "application/json");
+
+        if let Some(headers) = self.headers() {
+            for (key, value) in headers.iter() {
+                request = request.header(key, value);
+            }
+        }
 
         let body = self.body()?.unwrap_or_default();
 
@@ -67,11 +73,17 @@ where
     async fn query_async(&self, client: &C) -> Result<T, ApiError<C::Error>> {
         let mut url = client.rest_endpoint(&self.url())?;
         self.parameters().add_to_url(&mut url);
-        let request = Request::builder()
+        let mut request = Request::builder()
             .method(self.method())
             .uri(url_to_http_uri(url))
             .header("Accept", "application/json")
             .header("Content-Type", "application/json");
+
+        if let Some(headers) = self.headers() {
+            for (key, value) in headers.iter() {
+                request = request.header(key, value);
+            }
+        }
 
         let body = self.body()?.unwrap_or_default();
 

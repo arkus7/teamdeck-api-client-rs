@@ -86,11 +86,17 @@ where
                 page_url
             };
 
-            let request = Request::builder()
+            let mut request = Request::builder()
                 .method(self.endpoint.method())
                 .uri(url_to_http_uri(page_url))
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json");
+
+            if let Some(headers) = self.endpoint.headers() {
+                for (key, value) in headers.iter() {
+                    request = request.header(key, value);
+                }
+            }
 
             let body = self.endpoint.body()?.unwrap_or_default();
 
@@ -157,11 +163,17 @@ where
                 page_url
             };
 
-            let request = Request::builder()
+            let mut request = Request::builder()
                 .method(self.endpoint.method())
                 .uri(url_to_http_uri(page_url))
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json");
+
+            if let Some(headers) = self.endpoint.headers() {
+                for (key, value) in headers.iter() {
+                    request = request.header(key, value);
+                }
+            }
 
             let body = self.endpoint.body()?.unwrap_or_default();
 
@@ -199,7 +211,9 @@ where
 
 #[cfg(test)]
 mod tests {
-    use http::{Method, StatusCode};
+    use http::{
+        Method, StatusCode,
+    };
     use serde::{Deserialize, Serialize};
     use serde_json::json;
     use std::borrow::Cow;
@@ -214,6 +228,9 @@ mod tests {
     #[derive(Debug, Default)]
     struct Dummy;
 
+    const DUMMY_HEADER_VALUE: &str = "dummy";
+    const DUMMY_HEADER_NAME: &str = "X-Dummy";
+
     impl Endpoint for Dummy {
         fn url(&self) -> Cow<'static, str> {
             "paged_dummy".into()
@@ -221,6 +238,12 @@ mod tests {
 
         fn method(&self) -> Method {
             Method::GET
+        }
+
+        fn headers(&self) -> Option<http::HeaderMap> {
+            let mut headers = http::HeaderMap::new();
+            headers.insert(DUMMY_HEADER_NAME, DUMMY_HEADER_VALUE.parse().unwrap());
+            Some(headers)
         }
     }
 
@@ -445,5 +468,25 @@ mod tests {
         for (i, value) in res.iter().enumerate() {
             assert_eq!(value.value, i as u8);
         }
+    }
+
+    #[test]
+    fn passes_custom_headers() {
+        let query = Dummy::default();
+        assert!(query.headers().is_some());
+
+        let endpoint = api::paged(query, Pagination::All);
+
+        let expected = ExpectedRequest::builder()
+            .method(Method::GET)
+            .path("/paged_dummy")
+            .request_headers(vec![(DUMMY_HEADER_NAME.into(), DUMMY_HEADER_VALUE.into())])
+            .response_body(json!(vec![DummyResult { value: 0 }]).to_string())
+            .build()
+            .unwrap();
+
+        let client = TestClient::expecting(expected);
+
+        let _: Vec<DummyResult> = endpoint.query(&client).unwrap();
     }
 }

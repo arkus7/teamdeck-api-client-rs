@@ -25,11 +25,17 @@ where
         let mut url = client.rest_endpoint(&self.endpoint.url())?;
         self.endpoint.parameters().add_to_url(&mut url);
 
-        let req = Request::builder()
+        let mut req = Request::builder()
             .method(self.endpoint.method())
             .uri(endpoint::url_to_http_uri(url))
             .header("Accept", "application/json")
             .header("Content-Type", "application/json");
+
+        if let Some(headers) = self.endpoint.headers() {
+            for (key, value) in headers.iter() {
+                req = req.header(key, value);
+            }
+        }
 
         let data = self.endpoint.body()?.unwrap_or_default();
         let rsp = client.rest(req, data)?;

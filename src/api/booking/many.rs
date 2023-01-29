@@ -147,12 +147,9 @@ mod tests {
             .build()
             .unwrap();
 
-        let client = TestClient::new();
-        let mock = client.expect(expected);
+        let client = TestClient::expecting(expected);
 
         endpoint.query(&client).unwrap();
-
-        mock.assert();
     }
 
     #[test]
@@ -171,12 +168,9 @@ mod tests {
             .build()
             .unwrap();
 
-        let client = TestClient::new();
-        let mock = client.expect(expected);
+        let client = TestClient::expecting(expected);
 
         endpoint.query(&client).unwrap();
-
-        mock.assert();
     }
 
     #[test]
@@ -195,12 +189,9 @@ mod tests {
             .build()
             .unwrap();
 
-        let client = TestClient::new();
-        let mock = client.expect(expected);
+        let client = TestClient::expecting(expected);
 
         endpoint.query(&client).unwrap();
-
-        mock.assert();
     }
 
     #[test]
@@ -219,12 +210,9 @@ mod tests {
             .build()
             .unwrap();
 
-        let client = TestClient::new();
-        let mock = client.expect(expected);
+        let client = TestClient::expecting(expected);
 
         endpoint.query(&client).unwrap();
-
-        mock.assert();
     }
 
     #[test]
@@ -243,12 +231,9 @@ mod tests {
             .build()
             .unwrap();
 
-        let client = TestClient::new();
-        let mock = client.expect(expected);
+        let client = TestClient::expecting(expected);
 
         endpoint.query(&client).unwrap();
-
-        mock.assert();
     }
 
     #[test]
@@ -262,12 +247,9 @@ mod tests {
             .build()
             .unwrap();
 
-        let client = TestClient::new();
-        let mock = client.expect(expected);
+        let client = TestClient::expecting(expected);
 
         endpoint.query(&client).unwrap();
-
-        mock.assert();
     }
 
     #[test]
@@ -286,11 +268,8 @@ mod tests {
             .build()
             .unwrap();
 
-        let client = TestClient::new();
-        let mock = client.expect(expected);
+        let client = TestClient::expecting(expected);
 
         endpoint.query(&client).unwrap();
-
-        mock.assert();
     }
 }

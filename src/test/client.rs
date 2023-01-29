@@ -7,87 +7,88 @@ use thiserror::Error;
 use url::Url;
 
 use crate::api::{self, ApiError, AsyncClient, Client, RestClient};
+
+struct MockId(usize);
+
 pub(crate) struct TestClient {
     server: MockServer,
     client: BlockingClient,
+    mocks: Vec<MockId>,
 }
 
 impl TestClient {
     pub(crate) fn new() -> Self {
         let server = MockServer::start();
         let client = BlockingClient::new();
-        Self { server, client }
+        let mocks = Vec::new();
+        Self {
+            server,
+            client,
+            mocks,
+        }
     }
 
-    #[must_use = "The mock must be asserted to ensure the request was made"]
-    pub(crate) fn expect(&self, req: ExpectedRequest) -> Mock {
-        let mock: Mock = self.server.mock(|when, then| {
-            let mut request = when.method(req.method.as_str()).path(req.path);
+    pub(crate) fn expecting(req: ExpectedRequest) -> Self {
+        let mut client = Self::new();
+        client.expect(req);
+        client
+    }
 
-            if let Some(body) = req.request_body {
-                request = request.json_body(body);
-            }
-
-            if let Some(headers) = req.request_headers {
-                for (key, value) in headers {
-                    request = request.header(key, value);
-                }
-            }
-
-            if let Some(query) = req.query {
-                for (key, value) in query {
-                    request = request.query_param(key, value);
-                }
-            }
-
-            let mut response = then.status(req.response_status.as_u16());
-            if let Some(headers) = req.response_headers {
-                for (key, value) in headers {
-                    response = response.header(key, value);
-                }
-            }
-            if let Some(body) = req.response_body {
-                response = response.body(body);
-            }
-        });
-
+    pub(crate) fn expect(&mut self, req: ExpectedRequest) -> Mock {
+        let mock = mock_request(&self.server, req);
+        self.mocks.push(MockId(mock.id));
         mock
     }
 
     pub(crate) fn url_str(&self, path: &str) -> String {
         self.server.url(&format!("/{}", path))
     }
-}
 
-#[derive(Builder, Debug)]
-pub(crate) struct ExpectedRequest {
-    #[builder(default = "Method::GET")]
-    method: Method,
-    path: &'static str,
-    #[builder(default = "StatusCode::OK")]
-    response_status: StatusCode,
-    #[builder(default, setter(strip_option))]
-    query: Option<Vec<(String, String)>>,
-    #[builder(default, setter(strip_option))]
-    request_headers: Option<Vec<(String, String)>>,
-    #[builder(default, setter(strip_option, into))]
-    request_body: Option<serde_json::Value>,
-    #[builder(default, setter(strip_option, into))]
-    response_body: Option<String>,
-    #[builder(default, setter(strip_option))]
-    response_headers: Option<Vec<(String, String)>>,
-}
-
-impl ExpectedRequest {
-    pub(crate) fn builder() -> ExpectedRequestBuilder {
-        ExpectedRequestBuilder::default()
+    pub(crate) fn assert_mocks(&self) {
+        for MockId(id) in &self.mocks {
+            let mock = Mock::new(*id, &self.server);
+            mock.assert();
+        }
     }
+}
+
+fn mock_request<'a>(server: &'a MockServer, req: ExpectedRequest) -> Mock<'a> {
+    let mock = server.mock(|when, then| {
+        let mut when = when.method(req.method.as_str()).path(req.path);
+
+        if let Some(body) = req.request_body {
+            when = when.json_body(body);
+        }
+
+        if let Some(headers) = req.request_headers {
+            for (key, value) in headers {
+                when = when.header(key, value);
+            }
+        }
+
+        if let Some(query) = req.query {
+            for (key, value) in query {
+                when = when.query_param(key, value);
+            }
+        }
+
+        let mut then = then.status(req.response_status.as_u16());
+        if let Some(headers) = req.response_headers {
+            for (key, value) in headers {
+                then = then.header(key, value);
+            }
+        }
+        if let Some(body) = req.response_body {
+            _ = then.body(body);
+        }
+    });
+
+    mock
 }
 
 #[derive(Debug, Error)]
 #[error("test client error")]
-pub enum TestClientError {
-}
+pub enum TestClientError {}
 
 impl RestClient for TestClient {
     type Error = TestClientError;
@@ -130,5 +131,36 @@ impl AsyncClient for TestClient {
         body: Vec<u8>,
     ) -> Result<http::Response<bytes::Bytes>, ApiError<<Self as RestClient>::Error>> {
         <Self as Client>::rest(self, request, body)
+    }
+}
+
+impl Drop for TestClient {
+    fn drop(&mut self) {
+      self.assert_mocks();
+    }
+}
+
+#[derive(Builder, Debug)]
+pub(crate) struct ExpectedRequest {
+    #[builder(default = "Method::GET")]
+    method: Method,
+    path: &'static str,
+    #[builder(default = "StatusCode::OK")]
+    response_status: StatusCode,
+    #[builder(default, setter(strip_option))]
+    query: Option<Vec<(String, String)>>,
+    #[builder(default, setter(strip_option))]
+    request_headers: Option<Vec<(String, String)>>,
+    #[builder(default, setter(strip_option, into))]
+    request_body: Option<serde_json::Value>,
+    #[builder(default, setter(strip_option, into))]
+    response_body: Option<String>,
+    #[builder(default, setter(strip_option))]
+    response_headers: Option<Vec<(String, String)>>,
+}
+
+impl ExpectedRequest {
+    pub(crate) fn builder() -> ExpectedRequestBuilder {
+        ExpectedRequestBuilder::default()
     }
 }

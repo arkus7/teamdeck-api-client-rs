@@ -243,12 +243,9 @@ mod tests {
             .build()
             .unwrap();
 
-        let client = TestClient::new();
-        let mock = client.expect(expected);
+        let client = TestClient::expecting(expected);
 
         let res: Result<Vec<DummyResult>, _> = endpoint.query(&client);
-
-        mock.assert();
 
         let err = res.unwrap_err();
         if let ApiError::TeamdeckService { status, .. } = err {
@@ -271,12 +268,9 @@ mod tests {
             .build()
             .unwrap();
 
-        let client = TestClient::new();
-        let mock = client.expect(expected);
+        let client = TestClient::expecting(expected);
 
         let res: Result<Vec<DummyResult>, _> = api::paged(endpoint, Pagination::All).query(&client);
-
-        mock.assert();
 
         let err = res.unwrap_err();
         if let ApiError::TeamdeckService { status, .. } = err {
@@ -304,12 +298,9 @@ mod tests {
             .build()
             .unwrap();
 
-        let client = TestClient::new();
-        let mock = client.expect(expected);
+        let client = TestClient::expecting(expected);
 
         let res: Result<Vec<DummyResult>, _> = api::paged(endpoint, Pagination::All).query(&client);
-
-        mock.assert();
 
         let err = res.unwrap_err();
         if let ApiError::Teamdeck { msg } = err {
@@ -337,12 +328,9 @@ mod tests {
             .build()
             .unwrap();
 
-        let client = TestClient::new();
-        let mock = client.expect(expected);
+        let client = TestClient::expecting(expected);
 
         let res: Result<Vec<DummyResult>, _> = api::paged(endpoint, Pagination::All).query(&client);
-
-        mock.assert();
 
         let err = res.unwrap_err();
         if let ApiError::Teamdeck { msg } = err {
@@ -369,12 +357,9 @@ mod tests {
             .build()
             .unwrap();
 
-        let client = TestClient::new();
-        let mock = client.expect(expected);
+        let client = TestClient::expecting(expected);
 
         let res: Result<Vec<DummyResult>, _> = api::paged(endpoint, Pagination::All).query(&client);
-
-        mock.assert();
 
         let err = res.unwrap_err();
         if let ApiError::TeamdeckUnrecognized { obj } = err {
@@ -404,19 +389,15 @@ mod tests {
                 .unwrap()
         });
 
-        let client = TestClient::new();
+        let mut client = TestClient::new();
 
-        let mocks = expected_requests
-            .map(|expected| client.expect(expected))
-            .collect::<Vec<_>>();
+        for req in expected_requests {
+            client.expect(req);
+        }
 
         let query = Dummy::default();
 
         let res: Vec<DummyResult> = api::paged(query, Pagination::All).query(&client).unwrap();
-
-        for mock in mocks {
-            mock.assert();
-        }
 
         assert_eq!(res.len(), 256);
 
@@ -446,11 +427,11 @@ mod tests {
                 .unwrap()
         });
 
-        let client = TestClient::new();
+        let mut client = TestClient::new();
 
-        let mocks = expected_requests
-            .map(|expected| client.expect(expected))
-            .collect::<Vec<_>>();
+        for req in expected_requests {
+            client.expect(req);
+        }
 
         let query = Dummy::default();
 
@@ -458,10 +439,6 @@ mod tests {
             .query_async(&client)
             .await
             .unwrap();
-
-        for mock in mocks {
-            mock.assert();
-        }
 
         assert_eq!(res.len(), 256);
 

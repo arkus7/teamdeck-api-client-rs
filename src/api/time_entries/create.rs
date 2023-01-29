@@ -158,65 +158,60 @@ mod tests {
 
     #[test]
     fn missing_resource_id() {
-        let endpoint = 
-            CreateTimeEntry::builder()
-                .project_id(2)
-                .minutes(3)
-                .start_date(NaiveDate::from_ymd(2020, 1, 1))
-                .end_date(NaiveDate::from_ymd(2020, 1, 2))
-                .build();
+        let endpoint = CreateTimeEntry::builder()
+            .project_id(2)
+            .minutes(3)
+            .start_date(NaiveDate::from_ymd(2020, 1, 1))
+            .end_date(NaiveDate::from_ymd(2020, 1, 2))
+            .build();
 
         assert!(endpoint.is_err());
     }
 
     #[test]
     fn missing_project_id() {
-        let endpoint = 
-            CreateTimeEntry::builder()
-                .resource_id(1)
-                .minutes(3)
-                .start_date(NaiveDate::from_ymd(2020, 1, 1))
-                .end_date(NaiveDate::from_ymd(2020, 1, 2))
-                .build();
+        let endpoint = CreateTimeEntry::builder()
+            .resource_id(1)
+            .minutes(3)
+            .start_date(NaiveDate::from_ymd(2020, 1, 1))
+            .end_date(NaiveDate::from_ymd(2020, 1, 2))
+            .build();
 
         assert!(endpoint.is_err());
     }
 
     #[test]
     fn missing_minutes() {
-        let endpoint = 
-            CreateTimeEntry::builder()
-                .resource_id(1)
-                .project_id(2)
-                .start_date(NaiveDate::from_ymd(2020, 1, 1))
-                .end_date(NaiveDate::from_ymd(2020, 1, 2))
-                .build();
+        let endpoint = CreateTimeEntry::builder()
+            .resource_id(1)
+            .project_id(2)
+            .start_date(NaiveDate::from_ymd(2020, 1, 1))
+            .end_date(NaiveDate::from_ymd(2020, 1, 2))
+            .build();
 
         assert!(endpoint.is_err());
     }
 
     #[test]
     fn missing_start_date() {
-        let endpoint = 
-            CreateTimeEntry::builder()
-                .resource_id(1)
-                .project_id(2)
-                .minutes(3)
-                .end_date(NaiveDate::from_ymd(2020, 1, 2))
-                .build();
+        let endpoint = CreateTimeEntry::builder()
+            .resource_id(1)
+            .project_id(2)
+            .minutes(3)
+            .end_date(NaiveDate::from_ymd(2020, 1, 2))
+            .build();
 
         assert!(endpoint.is_err());
     }
 
     #[test]
     fn missing_end_date() {
-        let endpoint = 
-            CreateTimeEntry::builder()
-                .resource_id(1)
-                .project_id(2)
-                .minutes(3)
-                .start_date(NaiveDate::from_ymd(2020, 1, 1))
-                .build();
+        let endpoint = CreateTimeEntry::builder()
+            .resource_id(1)
+            .project_id(2)
+            .minutes(3)
+            .start_date(NaiveDate::from_ymd(2020, 1, 1))
+            .build();
 
         assert!(endpoint.is_err());
     }

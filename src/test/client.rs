@@ -136,7 +136,7 @@ impl AsyncClient for TestClient {
 
 impl Drop for TestClient {
     fn drop(&mut self) {
-      self.assert_mocks();
+        self.assert_mocks();
     }
 }
 

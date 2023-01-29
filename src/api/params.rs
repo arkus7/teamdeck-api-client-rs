@@ -202,7 +202,6 @@ impl<'a> JsonParams<'a> {
     }
 
     pub fn to_body(&self) -> Result<Vec<u8>, serde_json::Error> {
-        dbg!(&self.params);
         serde_json::to_vec(&self.params)
     }
 }

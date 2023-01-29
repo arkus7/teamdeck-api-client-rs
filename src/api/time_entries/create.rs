@@ -81,7 +81,7 @@ mod tests {
     use serde_json::json;
 
     #[test]
-    fn create_time_entry() {
+    fn create_time_entry_request() {
         let endpoint = api::ignore(
             CreateTimeEntry::builder()
                 .resource_id(1)
@@ -123,5 +123,101 @@ mod tests {
         let client = TestClient::expecting(expected);
 
         endpoint.query(&client).unwrap();
+    }
+
+    #[test]
+    fn create_time_entry_minimal_request() {
+        let endpoint = api::ignore(
+            CreateTimeEntry::builder()
+                .resource_id(1)
+                .project_id(2)
+                .minutes(3)
+                .start_date(NaiveDate::from_ymd(2020, 1, 1))
+                .end_date(NaiveDate::from_ymd(2020, 1, 2))
+                .build()
+                .unwrap(),
+        );
+
+        let expected = ExpectedRequest::builder()
+            .method(Method::POST)
+            .path("/time-entries")
+            .request_body(json!({
+                "resource_id": 1,
+                "project_id": 2,
+                "minutes": 3,
+                "start_date": "2020-01-01",
+                "end_date": "2020-01-02",
+            }))
+            .build()
+            .unwrap();
+
+        let client = TestClient::expecting(expected);
+
+        endpoint.query(&client).unwrap();
+    }
+
+    #[test]
+    fn missing_resource_id() {
+        let endpoint = 
+            CreateTimeEntry::builder()
+                .project_id(2)
+                .minutes(3)
+                .start_date(NaiveDate::from_ymd(2020, 1, 1))
+                .end_date(NaiveDate::from_ymd(2020, 1, 2))
+                .build();
+
+        assert!(endpoint.is_err());
+    }
+
+    #[test]
+    fn missing_project_id() {
+        let endpoint = 
+            CreateTimeEntry::builder()
+                .resource_id(1)
+                .minutes(3)
+                .start_date(NaiveDate::from_ymd(2020, 1, 1))
+                .end_date(NaiveDate::from_ymd(2020, 1, 2))
+                .build();
+
+        assert!(endpoint.is_err());
+    }
+
+    #[test]
+    fn missing_minutes() {
+        let endpoint = 
+            CreateTimeEntry::builder()
+                .resource_id(1)
+                .project_id(2)
+                .start_date(NaiveDate::from_ymd(2020, 1, 1))
+                .end_date(NaiveDate::from_ymd(2020, 1, 2))
+                .build();
+
+        assert!(endpoint.is_err());
+    }
+
+    #[test]
+    fn missing_start_date() {
+        let endpoint = 
+            CreateTimeEntry::builder()
+                .resource_id(1)
+                .project_id(2)
+                .minutes(3)
+                .end_date(NaiveDate::from_ymd(2020, 1, 2))
+                .build();
+
+        assert!(endpoint.is_err());
+    }
+
+    #[test]
+    fn missing_end_date() {
+        let endpoint = 
+            CreateTimeEntry::builder()
+                .resource_id(1)
+                .project_id(2)
+                .minutes(3)
+                .start_date(NaiveDate::from_ymd(2020, 1, 1))
+                .build();
+
+        assert!(endpoint.is_err());
     }
 }

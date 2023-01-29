@@ -1,6 +1,7 @@
 mod client;
 mod endpoint;
 pub mod error;
+mod header;
 pub mod ignore;
 mod paged;
 mod params;

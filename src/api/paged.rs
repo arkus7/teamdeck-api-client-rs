@@ -211,9 +211,7 @@ where
 
 #[cfg(test)]
 mod tests {
-    use http::{
-        Method, StatusCode,
-    };
+    use http::{Method, StatusCode};
     use serde::{Deserialize, Serialize};
     use serde_json::json;
     use std::borrow::Cow;

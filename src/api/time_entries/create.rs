@@ -6,6 +6,7 @@ use std::borrow::Cow;
 
 use crate::api::{
     error::BodyError,
+    header,
     params::{self, JsonParams},
     Endpoint,
 };
@@ -31,6 +32,8 @@ pub struct CreateTimeEntry<'a> {
     creator_resource_id: Option<u64>,
     #[builder(default)]
     editor_resource_id: Option<u64>,
+    #[builder(default)]
+    disable_notifications: Option<bool>,
 }
 
 impl<'a> CreateTimeEntry<'a> {
@@ -67,13 +70,21 @@ impl<'a> Endpoint for CreateTimeEntry<'a> {
 
         Ok(Some(params.to_body()?))
     }
+
+    fn headers(&self) -> Option<http::HeaderMap> {
+        let mut headers = http::HeaderMap::new();
+        if let Some(disable_notifications) = self.disable_notifications {
+            header::disable_notifications_header(&mut headers, disable_notifications);
+        }
+        Some(headers)
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::{
-        api::{self, Query},
+        api::{self, header::DISABLE_NOTIFICATION_HEADER, Query},
         test::client::{ExpectedRequest, TestClient},
     };
     use chrono::NaiveDate;
@@ -214,5 +225,31 @@ mod tests {
             .build();
 
         assert!(endpoint.is_err());
+    }
+
+    #[test]
+    fn disable_notifications() {
+        let endpoint = api::ignore(
+            CreateTimeEntry::builder()
+                .resource_id(1)
+                .project_id(2)
+                .minutes(3)
+                .start_date(NaiveDate::from_ymd(2020, 1, 1))
+                .end_date(NaiveDate::from_ymd(2020, 1, 2))
+                .disable_notifications(Some(true))
+                .build()
+                .unwrap(),
+        );
+
+        let expected = ExpectedRequest::builder()
+            .method(Method::POST)
+            .path("/time-entries")
+            .request_headers(vec![(DISABLE_NOTIFICATION_HEADER.into(), "true".into())])
+            .build()
+            .unwrap();
+
+        let client = TestClient::expecting(expected);
+
+        endpoint.query(&client).unwrap();
     }
 }
